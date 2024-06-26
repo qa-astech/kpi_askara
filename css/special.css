@@ -1,0 +1,101 @@
+.w-0 {
+  width: 0;
+}
+.form-group {
+  margin-bottom: 1rem;
+}
+.form-group > label, .form-group > span.d-inline-block {
+  padding-bottom: .25rem;
+}
+table.dataTable {
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+}
+.table {
+  border-color: #383838;
+}
+.table-information tr td:last-child, .table-information tr th:last-child{
+  width: 100%;
+}
+.table-information tr td:first-child, .table-information tr th:first-child{
+  white-space: nowrap;
+}
+label.form-check, label.form-check > span, input[type="file"], input[type="radio"], input[type="checkbox"]{
+  cursor: pointer;
+}
+table.dataTable tr.selected i {
+  color: #fff !important;
+}
+tr.selected .btn-check-month + .btn{
+  color: var(--bs-white);
+}
+tr.selected .btn-check-month:checked + .btn{
+  color: var(--bs-dark);
+}
+tr .btn-check-month + .btn{
+  color: var(--bs-dark);
+}
+tr .btn-check-month:checked + .btn{
+  color: var(--bs-dark);
+}
+.select2-results__group {
+  font-weight: bold !important;
+  font-style: italic !important;
+  text-decoration: underline !important;
+  padding-top: .5em !important;
+  padding-bottom: .5em !important;
+  padding-left: .75em !important;
+  padding-right: .75em !important;
+  display: block;
+}
+
+table.dg-editor > tbody tr.selected td{
+  background-color: var(--bs-primary);
+  color: var(--bs-white);
+}
+
+table thead tr > th, table.table-nowrap th, table.table-nowrap td {
+  white-space: nowrap;
+}
+
+.triangle-hollow {
+  display: inline-block;
+	width: 0;
+	height: 0;
+	border-left: 7px solid transparent;
+	border-right: 7px solid transparent;
+	border-bottom: 14px solid #000;
+  position: relative;
+}
+.triangle-hollow::before {
+	content: "";
+  position: absolute;
+  top: calc((14px - 10px) / 100 * 75);
+  left: 0;
+	width: 0;
+	height: 0;
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-bottom: 10px solid #fff;
+  transform: translateX(-50%);
+}
+
+.circle, .circle-hollow {
+  display: inline-block;
+  height: 14px;
+  width: 14px;
+  background-color: #000;
+  border-radius: 50%;
+  position: relative;
+}
+.circle-hollow::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 10px;
+  width: 10px;
+  background-color: #FFF;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}

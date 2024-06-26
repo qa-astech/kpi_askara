@@ -1,0 +1,16 @@
+.noteDgUtama {
+  max-width: 500px;
+}
+.noteDgUtama > div {
+  margin-bottom: 0 !important;
+  height: 100%;
+}
+label.card {
+  cursor: pointer;
+}
+.card.selected {
+  border: var(--bs-card-border-width) solid var(--bs-primary);
+}
+.card.selected .card-header {
+  border-bottom: var(--bs-card-border-width) solid var(--bs-primary);
+}

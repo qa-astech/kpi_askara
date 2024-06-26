@@ -1,0 +1,59 @@
+/* Toggle Checkbox */
+.chkbx-toggle {
+	display: none;
+}
+.chkbx-toggle + label {
+	position: relative;
+	cursor: pointer;
+	outline: none;
+	user-select: none;
+	width: 55px;
+	height: 20px;
+	background-color: #CFCFCF;
+	border-radius: 60px;
+	transition: background 0.4s;
+}
+.chkbx-toggle + label::before, .chkbx-toggle + label::after {
+	content: "";
+	display: block;
+	position: absolute;
+}
+.chkbx-toggle + label::before {
+	right: 1px;
+	left: 1px;
+	top: 1px;
+	bottom: 1px;
+	background-color: #FF9800;
+	border-radius: 60px;
+	transition: background 0.4s;
+}
+.chkbx-toggle + label::after {
+	top: -1.5px;
+	left: 0;
+	width: 22px;
+	height: 22px;
+	background-color: #fff;
+	border-radius: 100%;
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+	transition: transform 0.4s;
+}
+.chkbx-toggle:checked + label {
+	background-color: #CFCFCF;
+}
+.chkbx-toggle:checked + label::before {
+	background-color: #2536D9;
+}
+.chkbx-toggle:checked + label::after {
+	transform: translateX(34px);
+}
+.chkbx-toggle:disabled + label {
+	opacity: 0.5;
+	cursor: default;
+}
+.row-user-access{
+	background-color: rgba(216, 216, 216, .6);
+	border: 2px solid #D8D8D8;
+}
+.white-space-nowrap{
+	white-space: nowrap;
+}

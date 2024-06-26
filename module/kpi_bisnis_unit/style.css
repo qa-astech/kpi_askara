@@ -1,0 +1,8 @@
+.row-month > * {
+  padding-right: calc(var(--bs-gutter-x) * .35);
+  padding-left: calc(var(--bs-gutter-x) * .35);
+}
+.row-month {
+  width: 480px;
+  row-gap: 1em;
+}
