@@ -393,7 +393,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <td class="bg-danger-subtle" data-month="${element.number}"></td>
                 <td class="bg-danger-subtle" data-month="${element.number}">
                   <div class="d-flex flex-column">
-                    ${filteringArr.idRealisasi ? `<button type="button" class="btn rounded btn-sm btn-zip" data-month="${element.number}"><span class="ps-2">Unduh File Sebelumnya</span></button>` : ''}
+                    ${filteringArr.fileRealisasi ? `<button type="button" class="btn rounded btn-sm btn-zip" data-month="${element.number}"><span class="ps-2">Unduh File Sebelumnya</span></button>` : ''}
                     <input type="file" class="form-control file_kpi" name="file_kpi[${filteringArr.idTargetMonth}][]" style="width: 300px;" multiple>
                   </div>
                 </td>
@@ -406,7 +406,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <td class="bg-danger-subtle" data-month="${element.number}">${filteringArr.realisasi ? number_format_big(filteringArr.realisasi, 2, '.', ',') : ''}</td>
                 <td class="bg-danger-subtle" data-month="${element.number}"></td>
                 <td class="bg-danger-subtle" data-month="${element.number}">
-                  ${filteringArr.idRealisasi ? `<button type="button" class="btn rounded btn-sm btn-zip" data-month="${element.number}"><span class="ps-2">Unduh File</span></button>` : ''}
+                  ${filteringArr.fileRealisasi ? `<button type="button" class="btn rounded btn-sm btn-zip" data-month="${element.number}"><span class="ps-2">Unduh File</span></button>` : ''}
                 </td>
                 <td class="bg-danger-subtle" data-month="${element.number}">${filteringArr.fullnameRealisasi ?? ''}</td>
                 <td class="bg-danger-subtle" data-month="${element.number}" style="border-right: 1px solid var(--bs-danger)">${filteringArr.timeRealisasi ?? ''}</td>

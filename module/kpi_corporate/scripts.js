@@ -11,9 +11,9 @@ const btnAddFreshDgUtama = document.getElementById('btnAddFreshDgUtama');
 const btnAddCopyDgUtama = document.getElementById('btnAddCopyDgUtama');
 const btnEditDgUtama = document.getElementById('btnEditDgUtama');
 const btnPublishDgUtama = document.getElementById('btnPublishDgUtama');
-const btnMenuPrintDgUtama = document.getElementById('btnMenuPrintDgUtama');
-const btnExcelDetailDgUtama = document.getElementById('btnExcelDetailDgUtama');
-const btnPDFDetailDgUtama = document.getElementById('btnPDFDetailDgUtama');
+// const btnMenuPrintDgUtama = document.getElementById('btnMenuPrintDgUtama');
+// const btnExcelDetailDgUtama = document.getElementById('btnExcelDetailDgUtama');
+// const btnPDFDetailDgUtama = document.getElementById('btnPDFDetailDgUtama');
 const btnReloadDgUtama = document.getElementById('btnReloadDgUtama');
 const dgUtamaYearInput = document.getElementById('dgUtamaYearInput');
 const dgUtamaYear3 = document.getElementById('dgUtamaYear3');
@@ -79,8 +79,8 @@ let funBtnAddFreshDgUtama = () => {};
 let funBtnAddCopyDgUtama = () => {};
 let funBtnEditDgUtama = () => {};
 let funBtnPublishDgUtama = () => {};
-let funBtnExcelDetailDgUtama = () => {};
-let funBtnPDFDetailDgUtama = () => {};
+// let funBtnExcelDetailDgUtama = () => {};
+// let funBtnPDFDetailDgUtama = () => {};
 let funModalEditorBtnSave = async () => {};
 const funBtnReloadDgUtama = async () => {
   if (yearProgress) {
@@ -225,16 +225,16 @@ const funViewKPIYear = async (year) => {
     btnAddCopyDgUtama.removeEventListener('click', funBtnAddCopyDgUtama);
     btnEditDgUtama.removeEventListener('click', funBtnEditDgUtama);
     btnPublishDgUtama.removeEventListener('click', funBtnPublishDgUtama);
-    btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
-    btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
+    // // btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
+    // // btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
     btnReloadDgUtama.removeEventListener('click', funBtnReloadDgUtama);
     btnAddFreshDgUtama.disabled = false;
     btnAddCopyDgUtama.disabled = false;
     btnEditDgUtama.disabled = false;
     btnPublishDgUtama.disabled = false;
-    btnMenuPrintDgUtama.disabled = false;
-    btnExcelDetailDgUtama.disabled = false;
-    btnPDFDetailDgUtama.disabled = false;
+    // btnMenuPrintDgUtama.disabled = false;
+    // btnExcelDetailDgUtama.disabled = false;
+    // btnPDFDetailDgUtama.disabled = false;
     btnReloadDgUtama.disabled = false;
     dgUtamaTbody.innerHTML = null;
     
@@ -307,8 +307,8 @@ const funViewKPIYear = async (year) => {
         modalEditorBtnSave.addEventListener('click', funModalEditorBtnSave);
         modalEditor.show();
       }
-      funBtnExcelDetailDgUtama = async (e) => {}
-      funBtnPDFDetailDgUtama = async (e) => {}
+      // funBtnExcelDetailDgUtama = async (e) => {}
+      // funBtnPDFDetailDgUtama = async (e) => {}
       funBtnPublishDgUtama = async (e) => {
         confirmComponent.setupconfirm('Terbit KPI', 'bg-primary', 'text-white', 'Anda yakin ingin terbitkan KPI ini sekarang?');
         alertComponent.alertElem.removeEventListener('shown.bs.modal', closeAlertComp);
@@ -329,8 +329,8 @@ const funViewKPIYear = async (year) => {
       }
 
       btnEditDgUtama.addEventListener('click', funBtnEditDgUtama);
-      btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
-      btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
+      // // btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
+      // // btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
       btnPublishDgUtama.addEventListener('click', funBtnPublishDgUtama);
 
       btnAddFreshDgUtama.disabled = true;
@@ -368,17 +368,17 @@ const funViewKPIYear = async (year) => {
         modalCopy.show();
       }
       funBtnEditDgUtama = async (e) => {}
-      funBtnExcelDetailDgUtama = async (e) => {}
-      funBtnPDFDetailDgUtama = async (e) => {}
+      // funBtnExcelDetailDgUtama = async (e) => {}
+      // funBtnPDFDetailDgUtama = async (e) => {}
       funBtnPublishDgUtama = async (e) => {}
 
       btnAddFreshDgUtama.addEventListener('click', funBtnAddFreshDgUtama);
       btnAddCopyDgUtama.addEventListener('click', funBtnAddCopyDgUtama);
 
       btnEditDgUtama.disabled = true;
-      btnMenuPrintDgUtama.disabled = true;
-      btnExcelDetailDgUtama.disabled = true;
-      btnPDFDetailDgUtama.disabled = true;
+      // btnMenuPrintDgUtama.disabled = true;
+      // btnExcelDetailDgUtama.disabled = true;
+      // btnPDFDetailDgUtama.disabled = true;
       btnPublishDgUtama.disabled = true;
     }
 
@@ -582,9 +582,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   btnAddCopyDgUtama.disabled = true;
   btnEditDgUtama.disabled = true;
   btnPublishDgUtama.disabled = true;
-  btnMenuPrintDgUtama.disabled = true;
-  btnExcelDetailDgUtama.disabled = true;
-  btnPDFDetailDgUtama.disabled = true;
+  // btnMenuPrintDgUtama.disabled = true;
+  // btnExcelDetailDgUtama.disabled = true;
+  // btnPDFDetailDgUtama.disabled = true;
   btnReloadDgUtama.disabled = true;
 
   dgUtamaYearInput.value = null;

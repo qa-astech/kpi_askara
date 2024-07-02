@@ -39,31 +39,31 @@ $content = "
     }
 	</style>
 	<page>
-	<div style='position:absolute;margin-top:10px;'>";
-		//<img src='../../image/(file)' alt='#' style='height:45px;'/>
+    <page_footer class='page-footer'>
+      page [[page_cu]] of [[page_nb]]
+    </page_footer>
+	";
+    // <div style='position:absolute;margin-top:10px;'>
+		//   <img src='../../image/(file)' alt='#' style='height:45px;'/>
+    // </div>
 
 
 // *notes* Ada catatan disini untuk page_footer / page_header, jangan ada html tag lain dibawahnya, kalo mau styling kasih class aja
 $content .= "
-	</div>	
-	<page_footer class='page-footer'>
-		page [[page_cu]] of [[page_nb]]
-  </page_footer> 
-	<div style='margin-top:0px;margin-left:570px'>
-		<p align=''>Bekasi, ".$date."<br>Print By : ".$_SESSION["user_kpi_askara"]."</p>
-	</div>
+    <div style='margin-top:0px;margin-left:570px'>
+      <p align=''>Bekasi, ".$date."<br>Print By : ".$_SESSION["user_kpi_askara"]."</p>
+    </div>
 
-	<div>
-		
-	<h3 align='center'>Master Posisi</h3>
-		<table align='center' style='font-size:10px;'>
-			<tr>
-				<th valign='middle' align='center' style='height:30px;'>No.</th>
-				<th valign='middle' align='center' style='height:30px;'>Kode Posisi</th>
-				<th valign='middle' align='center' style='height:30px;'>Nama Posisi</th>
-				<th valign='middle' align='center' style='height:30px;'>Pengguna Terakhir</th>
-				<th valign='middle' align='center' style='height:30px;'>Pembaharuan Terakhir</th>
-			</tr>";
+	  <div>
+      <h3 align='center'>Master Posisi</h3>
+      <table align='center' style='font-size:10px;'>
+        <tr>
+          <th valign='middle' align='center' style='height:30px;'>No.</th>
+          <th valign='middle' align='center' style='height:30px;'>Kode Posisi</th>
+          <th valign='middle' align='center' style='height:30px;'>Nama Posisi</th>
+          <th valign='middle' align='center' style='height:30px;'>Pengguna Terakhir</th>
+          <th valign='middle' align='center' style='height:30px;'>Pembaharuan Terakhir</th>
+        </tr>";
 
 if (!empty($items)) {
 	foreach ($items as $key => $value) {
@@ -72,13 +72,13 @@ if (!empty($items)) {
 		$user_entry = $value['user_entry'];
 		$last_update = $value['last_update'];
 		$content .= "
-		<tr>
-			<td valign='middle' align='center'>$nourut</td>
-			<td valign='middle' align='center'>$id</td>
-			<td valign='middle' style=''>$name</td>
-			<td valign='middle' align='center'>$user_entry</td>
-			<td valign='middle' align='center'>$last_update</td>
-		</tr>
+        <tr>
+          <td valign='middle' align='center'>$nourut</td>
+          <td valign='middle' align='center'>$id</td>
+          <td valign='middle' style=''>$name</td>
+          <td valign='middle' align='center'>$user_entry</td>
+          <td valign='middle' align='center'>$last_update</td>
+        </tr>
 		";
 		$nourut++;
 	}

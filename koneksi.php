@@ -2,6 +2,7 @@
 require_once("upload.php");
 require_once("zipfile.php");
 require_once __DIR__ . '/../third-party/utility-yudhi/cleanword.php';
+require_once __DIR__ . '/../third-party/utility-yudhi/cleanwordPDO.php';
 class session_cek {
   public function checkSession(){
     if ( empty($_SESSION["user_kpi_askara"]) || empty($_SESSION["setupuser_kpi_askara"]) ) {
@@ -73,7 +74,6 @@ class database {
   }
 
   public function konek_sita_db(){
-
     // if ($_SERVER["SERVER_NAME"] == "192.168.3.229" || $_SERVER["SERVER_NAME"] == "127.0.0.1" || $_SERVER["SERVER_NAME"] == "localhost") {
 		// 	$ip = "192.168.3.229";
 		// } else {
@@ -110,7 +110,22 @@ class database {
       );
       die();
     }
+  }
 
+  public function konek_kpi_pdo() {
+    try {
+      $host = "localhost";
+      $db = "kpi_askara";
+      $dsn = "pgsql:host=$host;port=5432;dbname=$db;";
+      $user = 'postgres';
+      $password = 'postgres';
+      return new PDO($dsn, $user, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+      ]);
+    } catch (PDOException $e) {
+      die($e->getMessage());
+    }
   }
 
   public function sendQuery($koneksi, $insert){
@@ -141,6 +156,42 @@ class database {
       die();
     } else {
       return $result;
+    }
+  }
+
+  public function sendQueryPDO($koneksi, $insert, $arrOfInsert){
+    if (empty($insert)) {
+      echo json_encode(
+        array(
+          'response'=>'error',
+          'alert'=>'Terjadi kesalahan (#Query1)'
+        )
+      );
+      die();
+    }
+
+    $isBusy = $koneksi->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' && $koneksi->pgsqlGetNotify();
+    if ($isBusy) {
+      echo json_encode(
+        array(
+          'response'=>'error',
+          'alert'=>'Sedang ada proses yang berjalan, coba lagi beberapa saat...'
+        )
+      );
+      die();
+    }
+
+    // echo 'nanih';
+
+    $prepareSQL = $koneksi->prepare($insert);
+    if ($prepareSQL->execute($arrOfInsert)) {
+      return $prepareSQL;
+    } else {
+      echo json_encode(array(
+        'response' => 'error',
+        'alert' => $prepareSQL->errorInfo()[2]
+      ));
+      die();
     }
   }
 
@@ -182,7 +233,44 @@ class database {
       }
       return $result;
     }
-    
+  }
+
+  public function sendQueryWithImgPDO($koneksi, $insert, $arrOfInsert, $imgOld = [], $dir = ''){
+    global $upload;
+    if (empty($insert)) {
+      $upload->revertUpload();
+      echo json_encode(
+        array(
+          'response'=>'error',
+          'alert'=>'Terjadi kesalahan (#Query1)'
+        )
+      );
+      die();
+    }
+
+    $isBusy = $koneksi->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql' && $koneksi->pgsqlGetNotify();
+    if ($isBusy) {
+      $upload->revertUpload();
+      echo json_encode(
+        array(
+          'response'=>'error',
+          'alert'=>'Sedang ada proses yang berjalan, coba lagi beberapa saat...'
+        )
+      );
+      die();
+    }
+
+    $prepareSQL = $koneksi->prepare($insert);
+    if (!$prepareSQL->execute($arrOfInsert)) {
+      $upload->revertUpload();
+      echo json_encode(array(
+        'response' => 'error',
+        'alert' => $prepareSQL->errorInfo()[2]
+      ));
+      die();
+    } else {
+      return $prepareSQL;
+    }
   }
 
   public function getSeriesPkey($table, $column, $start, $end, $limit, $where) {

@@ -3,26 +3,30 @@
 require_once('koneksi.php');
 class logAttempt extends database {
 
+  protected $pdo_connect;
+
   public function __construct(){
     parent::__construct();
     $this->konek_sita_db();
   }
 
   public function login(){
-    global $cleanWord;
-    $username = $cleanWord->textCk(@$_POST["username"], true, 'normal');
-    $password = $cleanWord->textCk(@$_POST["password"], true, 'plain');
-    $host = !empty($_SERVER['HTTP_HOST']) ? $cleanWord->textCk(@$_SERVER['HTTP_HOST'], false, 'trim') : 'Not Detected';
-    $user_agent = !empty($_SERVER['HTTP_USER_AGENT']) ? $cleanWord->textCk(@$_SERVER['HTTP_USER_AGENT'], false, 'trim') : 'Not Detected';
+    global $cleanWordPDO;
+    $username = $cleanWordPDO->textCk(@$_POST["username"], true, 'normal');
+    $password = $cleanWordPDO->textCk(@$_POST["password"], true, 'plain');
+    $host = !empty($_SERVER['HTTP_HOST']) ? $cleanWordPDO->textCk(@$_SERVER['HTTP_HOST'], false, 'trim') : 'Not Detected';
+    $user_agent = !empty($_SERVER['HTTP_USER_AGENT']) ? $cleanWordPDO->textCk(@$_SERVER['HTTP_USER_AGENT'], false, 'trim') : 'Not Detected';
 
     try {
       
       $cek_user = "SELECT a.username_users, a.password_users, b.id_usersetup
       FROM users a
       INNER JOIN all_users_setup b on b.nik = a.nik_users and b.role_utama = true
-      where a.username_users = {$username};";
-      $query_user = $this->sendQuery($this->konek_sita_db(), $cek_user);
-      $row_user = pg_fetch_all($query_user);
+      where a.username_users = :username;";
+      $query_user = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_user, array(
+        ':username' => $username
+      ));
+      $row_user = $query_user->fetchAll();
 
       if (empty($row_user)) {
         return json_encode(
@@ -41,9 +45,17 @@ class logAttempt extends database {
           $send_sql = "INSERT INTO last_log (
             username, status_log, host, user_agent, time_log
           ) VALUES (
-            {$username}, 'login', '$host', '$user_agent', '".$this->last_update."'
+            :username, 'login', :host, :userAgent, :lastUpdate
           );";
-          $this->sendQuery($this->konek_sita_db(), $send_sql);
+          // {$username}, 'login', '$host', '$user_agent', '".$this->last_update."'
+          // $this->sendQuery($this->konek_sita_db(), $send_sql);
+
+          $query_user = $this->sendQueryPDO($this->konek_kpi_pdo(), $send_sql, array(
+            ':username' => $username,
+            ':host' => $host,
+            ':userAgent' => $user_agent,
+            ':lastUpdate' => $this->last_update
+          ));
           return json_encode(
             array(
               'response'=>'success',

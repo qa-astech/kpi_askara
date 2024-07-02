@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 class kpi_realization_dept extends database {
 
   public function __construct(){
@@ -80,7 +81,7 @@ class kpi_realization_dept extends database {
       $newArray = array(
         'target' => $valueTarget['target_kpidept'],
         'realisasi' => $valueTarget['realisasi'],
-        'fileRealisasi' => base64_encode($valueTarget['file_realisasi']),
+        'fileRealisasi' => !empty($valueTarget['file_realisasi']) && strval($valueTarget['file_realisasi']) !== "{}" ? base64_encode($valueTarget['file_realisasi']) : '',
         'entryRealisasi' => $valueTarget['entry_realisasi'],
         'fullnameRealisasi' => $valueTarget['fullname_realisasi'],
         'timeRealisasi' => $valueTarget['time_realisasi'],
@@ -94,7 +95,7 @@ class kpi_realization_dept extends database {
       $newArray = array(
         'target' => $valueTarget['target_kpidivcorp'],
         'realisasi' => $valueTarget['realisasi'],
-        'fileRealisasi' => base64_encode($valueTarget['file_realisasi']),
+        'fileRealisasi' => !empty($valueTarget['file_realisasi']) && strval($valueTarget['file_realisasi']) !== "{}" ? base64_encode($valueTarget['file_realisasi']) : '',
         'entryRealisasi' => $valueTarget['entry_realisasi'],
         'fullnameRealisasi' => $valueTarget['fullname_realisasi'],
         'timeRealisasi' => $valueTarget['time_realisasi'],
@@ -219,7 +220,7 @@ class kpi_realization_dept extends database {
     $keyFilterKpi = !empty($filterKpi) ? array_keys($filterKpi) : array();
 
     $arrFilter = !empty($filterKpi) ? array_filter($_POST['realisasi_kpi'], function($value, $key) use ($keyFilterKpi) {
-      return !empty($value) && in_array($key, $keyFilterKpi);
+      return isset($value) && $value !== null && strval($value) !== "" && in_array($key, $keyFilterKpi);
     }, ARRAY_FILTER_USE_BOTH) : array();
     $arrKeys = !empty($filterKpi) ? array_keys($arrFilter) : array();
     $arrMapKeys = !empty($arrKeys) ? array_map(function($value) {

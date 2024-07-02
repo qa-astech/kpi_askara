@@ -15,6 +15,11 @@ switch ($request) {
     echo $classRoute->jsonTahun();
     break;
 
+  case 'getDataBisnisUnit':
+    $classRoute = new kpi_corporate();
+    echo $classRoute->getDataBisnisUnit();
+    break;
+
   default:
     echo json_encode(
       array(

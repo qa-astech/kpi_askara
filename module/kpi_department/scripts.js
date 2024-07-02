@@ -15,9 +15,9 @@ const dgUtamaUserEntry = document.getElementById('dgUtamaUserEntry');
 const dgUtamaLastUpdate = document.getElementById('dgUtamaLastUpdate');
 const btnEditDgUtama = document.getElementById('btnEditDgUtama');
 const btnPublishDgUtama = document.getElementById('btnPublishDgUtama');
-const btnMenuPrintDgUtama = document.getElementById('btnMenuPrintDgUtama');
-const btnExcelDetailDgUtama = document.getElementById('btnExcelDetailDgUtama');
-const btnPDFDetailDgUtama = document.getElementById('btnPDFDetailDgUtama');
+// const btnMenuPrintDgUtama = document.getElementById('btnMenuPrintDgUtama');
+// const btnExcelDetailDgUtama = document.getElementById('btnExcelDetailDgUtama');
+// const btnPDFDetailDgUtama = document.getElementById('btnPDFDetailDgUtama');
 const btnReloadDgUtama = document.getElementById('btnReloadDgUtama');
 const dgUtamaYear = document.getElementById('dgUtamaYear');
 const dgUtamaYear1 = document.getElementById('dgUtamaYear1');
@@ -159,8 +159,8 @@ const getJsonPolaritas = async () => {
 
 let funBtnEditDgUtama = async () => {}
 let funBtnPublishDgUtama = async () => {}
-let funBtnExcelDetailDgUtama = async () => {}
-let funBtnPDFDetailDgUtama = async () => {}
+// let funBtnExcelDetailDgUtama = async () => {}
+// let funBtnPDFDetailDgUtama = async () => {}
 const funBtnReloadDgUtama = async () => {
   await funViewKPIYear();
 }
@@ -461,14 +461,14 @@ const funViewKPIYear = async () => {
     dgUtamaYear1.innerText = yearProgress - 1;
     btnEditDgUtama.removeEventListener('click', funBtnEditDgUtama);
     btnPublishDgUtama.removeEventListener('click', funBtnPublishDgUtama);
-    btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
-    btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
+    // // btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
+    // // btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
     btnReloadDgUtama.removeEventListener('click', funBtnReloadDgUtama);
     btnEditDgUtama.disabled = false;
     btnPublishDgUtama.disabled = false;
-    btnMenuPrintDgUtama.disabled = false;
-    btnExcelDetailDgUtama.disabled = false;
-    btnPDFDetailDgUtama.disabled = false;
+    // btnMenuPrintDgUtama.disabled = false;
+    // btnExcelDetailDgUtama.disabled = false;
+    // btnPDFDetailDgUtama.disabled = false;
     btnReloadDgUtama.disabled = false;
     dgUtamaTbody.innerHTML = null;
     
@@ -566,11 +566,11 @@ const funViewKPIYear = async () => {
     }
     btnEditDgUtama.addEventListener('click', funBtnEditDgUtama);
 
-    funBtnExcelDetailDgUtama = async (e) => {}
-    btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
+    // funBtnExcelDetailDgUtama = async (e) => {}
+    // // btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
 
-    funBtnPDFDetailDgUtama = async (e) => {}
-    btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
+    // funBtnPDFDetailDgUtama = async (e) => {}
+    // // btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
 
     funBtnPublishDgUtama = async (e) => {
       confirmComponent.setupconfirm('Terbit KPI', 'bg-primary', 'text-white', 'Anda yakin ingin terbitkan KPI ini sekarang?');
@@ -850,9 +850,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   btnEditDgUtama.disabled = true;
   btnPublishDgUtama.disabled = true;
-  btnMenuPrintDgUtama.disabled = true;
-  btnExcelDetailDgUtama.disabled = true;
-  btnPDFDetailDgUtama.disabled = true;
+  // btnMenuPrintDgUtama.disabled = true;
+  // btnExcelDetailDgUtama.disabled = true;
+  // btnPDFDetailDgUtama.disabled = true;
   btnReloadDgUtama.disabled = true;
   dgUtamaYearInput.value = null;
 

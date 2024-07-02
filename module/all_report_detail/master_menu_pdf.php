@@ -1,8 +1,9 @@
 <?php 
-include("../../koneksi.php");
+include_once(__DIR__ . '/../../koneksi.php');
+require (__DIR__ . '/../../../third-party/html2pdf-5/autoload.php');
+
 $db = new database();
-$db->konek_sita_db();
-// print_r($_SESSION);
+
 $sql_w = "SELECT m.*, ma.* from menu m 
 left join menu_access ma on ma.code_menu = m.code_menu
 where ma.last_update is not null
@@ -24,34 +25,43 @@ $content = "
 			background-color: #4bd2fe;
 			color: black;
 		}
+    td {
+      white-space: break-spaces;
+      text-wrap: wrap;
+    }
+    td, th {
+      padding-left: 2px;
+      padding-right: 2px;
+    }
+    .page-footer {
+      text-align: right;
+    }
 	</style>
 	<page>
-	<div style='position:absolute;margin-top:10px;'>";
-		//<img src='../../image/(file)' alt='#' style='height:45px;'/>
+    <page_footer>
+      page [[page_cu]] of [[page_nb]]
+    </page_footer>";
+    // <div style='position:absolute;margin-top:10px;'>
+		//   <img src='../../image/(file)' alt='#' style='height:45px;'/>
+    // </div>
 $content .= "
-	</div>	
-	<page_footer>
-		<div style='width:100%;text-align:right;margin-bottom:100%'>page [[page_cu]] of [[page_nb]]</div>
-    </page_footer> 
-	<div style='margin-top:0px;margin-left:910px'>
-		<p align=''>Bekasi, ".$date."<br>Print By : ".$_SESSION["user_kpi_askara"]."</p>
-	</div>
+    <div style='margin-top:0px;margin-left:910px'>
+      <p align=''>Bekasi, ".$date."<br>Print By : ".$_SESSION["user_kpi_askara"]."</p>
+    </div>
 
-	<div>
-		
-	<h3 align='center'>Master Menu</h3>
-		<table align='center' style='font-size:10px;'>
-			<tr>
-				<th valign='middle' align='center' style='height:30px;'>No.</th>
-				<th valign='middle' align='center' style='height:30px;'>Kode Menu</th>
-				<th valign='middle' align='center' style='height:30px;'>Nama Menu</th>
-				<th valign='middle' align='center' style='height:30px;'>Link</th>
-				<th valign='middle' align='center' style='height:30px;'>Kode Access</th>
-				<th valign='middle' align='center' style='height:30px;'>Nama Access</th>
-				<th valign='middle' align='center' style='height:30px;'>Pengguna Terakhir</th>
-				<th valign='middle' align='center' style='height:30px;'>Pembaharuan Terakhir</th>
-								
-			</tr>";
+	  <div>
+      <h3 align='center'>Master Menu</h3>
+      <table align='center' style='font-size:10px;'>
+        <tr>
+          <th valign='middle' align='center' style='height:30px;'>No.</th>
+          <th valign='middle' align='center' style='height:30px;'>Kode Menu</th>
+          <th valign='middle' align='center' style='height:30px;'>Nama Menu</th>
+          <th valign='middle' align='center' style='height:30px;'>Link</th>
+          <th valign='middle' align='center' style='height:30px;'>Kode Access</th>
+          <th valign='middle' align='center' style='height:30px;'>Nama Access</th>
+          <th valign='middle' align='center' style='height:30px;'>Pengguna Terakhir</th>
+          <th valign='middle' align='center' style='height:30px;'>Pembaharuan Terakhir</th>
+        </tr>";
 
 if (!empty($items)) {
 	foreach ($items as $key => $value) {
@@ -63,25 +73,25 @@ if (!empty($items)) {
 		$user_entry = $value['user_entry'];
 		$last_update = $value['last_update'];
 		$content .= "
-		<tr>
-			<td valign='middle' align='center'>$nourut</td>
-			<td valign='middle' style='width:90px;height:30px;'>$id</td>
-			<td valign='middle' style='width:130px;height:30px;'>$title</td>
-			<td valign='middle' style='width:160px;height:30px;'>$link</td>
-			<td valign='middle' style='width:70px;height:30px;'>$id_det</td>
-			<td valign='middle' style='width:130px;height:30px;'>$name</td>
-			<td valign='middle' style=''>$user_entry</td>
-			<td valign='middle' style='width:100px;height:30px;'>$last_update</td>
-		</tr>
+        <tr>
+          <td valign='middle' align='center'>$nourut</td>
+          <td valign='middle' align='center'>$id</td>
+          <td valign='middle'>$title</td>
+          <td valign='middle'>$link</td>
+          <td valign='middle'>$id_det</td>
+          <td valign='middle'>$name</td>
+          <td valign='middle' align='center'>$user_entry</td>
+          <td valign='middle' align='center'>$last_update</td>
+        </tr>
 		";
 		$nourut++;
 	}
 }
 $content .= "</table></div></page>";
-require_once('../../../third-party/html2pdf-4/html2pdf.class.php');
-$html2pdf = new HTML2PDF('L','A4','en');
-$html2pdf->WriteHTML($content);
-$html2pdf->Output('Master Menu.pdf');
-// echo $content;
+
+$html2pdf = new \Spipu\Html2Pdf\Html2Pdf('L', 'A4', 'en');
+$html2pdf->writeHTML(trim($content));
+$html2pdf->output();
+
 ?>
 

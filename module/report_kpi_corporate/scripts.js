@@ -1,151 +1,116 @@
 import {
   IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5,
-  parseVersion, compareVersions, childVersion
+  parseVersion, compareVersions, childVersion,
+  number_format_big,
+  monthAcro
 } from '../../../third-party/utility-yudhi/utils.js';
 
 $.fn.dataTable.ext.errMode = 'none';
 const alertComponent = new AlertElemBS5('alertComponent1');
 const confirmComponent = new ConfirmElemBS5('confirmComponent1');
-const dgUtamaYearBtn = document.getElementById('dgUtamaYearBtn');
-const btnMenuPrintDgUtama = document.getElementById('btnMenuPrintDgUtama');
-const btnExcelDetailDgUtama = document.getElementById('btnExcelDetailDgUtama');
-const btnPDFDetailDgUtama = document.getElementById('btnPDFDetailDgUtama');
-const btnReloadDgUtama = document.getElementById('btnReloadDgUtama');
-const dgUtamaYearInput = document.getElementById('dgUtamaYearInput');
+const dgTahunanTbody = document.querySelector('table#dgTahunan > tbody');
+const dgBulananTbody = document.querySelector('table#dgBulanan > tbody');
+const yearKPI = document.querySelectorAll('.yearKPI');
+const dgUtamaUserEntry = document.getElementById('dgUtamaUserEntry');
+const dgUtamaLastUpdate = document.getElementById('dgUtamaLastUpdate');
+const dgTahunanTitle = document.getElementById('dgTahunanTitle');
+const dgBulananTitle = document.getElementById('dgBulananTitle');
 const dgUtamaYear3 = document.getElementById('dgUtamaYear3');
 const dgUtamaYear2 = document.getElementById('dgUtamaYear2');
 const dgUtamaYear1 = document.getElementById('dgUtamaYear1');
-const dgTarget = document.getElementById('dgTarget');
-const titleYearKPI = document.getElementById('titleYearKPI');
-const dgUtamaUserEntry = document.getElementById('dgUtamaUserEntry');
-const dgUtamaLastUpdate = document.getElementById('dgUtamaLastUpdate');
-// menuPrintDgUtama
-// dgUtama
-const dgUtamaTbody = document.querySelector('table#dgUtama > tbody');
+const dgUtamaYearInput = document.getElementById('dgUtamaYearInput');
 
-$(`#dgUtamaYearInput`).select2({
-  theme: "bootstrap-5",
-  width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
-  placeholder: $( this ).data( 'placeholder' ),
-  dropdownParent: $('#mainPage'),
-  allowClear: true,
-  ajax: {
-    url: "route.php?act=jsonTahun",
-    dataType: 'json',
-    method: 'POST',
-    delay: 250,
-    data: function (params) {
-      return {
-        q: params.term,
-        page: params.page || 1
-      };
-    },
-    processResults: function (data) {
-      return {
-        results: data.items,
-        pagination: {
-          more: data.pagination.more
-        }
-      };
-    },
-    cache: true
-  },
-});
+// button print
+const btnMenuPrintDgBulanan = document.getElementById('btnMenuPrintDgBulanan');
+const menuPrintDgBulanan = document.getElementById('menuPrintDgBulanan');
+const btnLaporanTahunan = document.getElementById('btnLaporanTahunan');
+const btnLaporanBulanan = document.getElementById('btnLaporanBulanan');
+const btnLaporanQuartal1 = document.getElementById('btnLaporanQuartal1');
+// table
+const dgBulanan = document.getElementById('dgBulanan');
+const trUpperBulanan = document.getElementById('trUpperBulanan');
+const trBottomBulanan = document.getElementById('trBottomBulanan');
+const dgTahunan = document.getElementById('dgTahunan');
+const trUpperTahunan = document.getElementById('trUpperTahunan');
+const trBottomTahunan = document.getElementById('trBottomTahunan');
 
-let funBtnExcelDetailDgUtama = () => {};
-let funBtnPDFDetailDgUtama = () => {};
-let funBtnReloadDgUtama = () => {};
-let yearProgress;
-let indexRowEditor = 0;
+// State Proses
+let yearPrintOut;
+let getDataBisnisUnit;
 
-const getKpiNow = async (year, copyTemplate = false) => {
+const getKpiNow = async (year) => {
   return new Promise(async (resolve) => {
     const sendData = new FormData();
     sendData.append('year_kpi', year);
-    sendData.append('copy_kpi', copyTemplate ? 'copy' : 'normal');
-    sendData.append('year_baseline', yearProgress);
     const getResult = await sendViaFetchForm('route.php?act=getKpiCorporate', sendData);
     resolve(getResult);
   });
 }
 
 const funViewKPIYear = async (year) => {
-  titleYearKPI.innerText = `LOADING....`;
   
   await getKpiNow(year)
   .then(jsonData => {
-    titleYearKPI.innerText = `KPI (${year})`;
     dgUtamaYear3.innerText = year - 3;
     dgUtamaYear2.innerText = year - 2;
     dgUtamaYear1.innerText = year - 1;
-    dgTarget.innerText = year;
-    btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
-    btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
-    btnReloadDgUtama.removeEventListener('click', funBtnReloadDgUtama);
+    dgTahunanTitle.innerText = `Laporan Tahunan (${year})`;
+    dgBulananTitle.innerText = `Laporan Bulanan (${year})`;
+    yearKPI.forEach(element => {
+      element.innerText = ` (${year})`;
+    });
     btnMenuPrintDgUtama.disabled = false;
-    btnExcelDetailDgUtama.disabled = false;
-    btnPDFDetailDgUtama.disabled = false;
-    btnReloadDgUtama.disabled = false;
-    dgUtamaTbody.innerHTML = null;
+
+    dgTahunanTbody.innerHTML = null;
+    dgBulananTbody.innerHTML = null;
     
     if (jsonData.length > 0) {
-      let lateDate;
-      let lateUser;
+      let lateDate = '';
+      let lateUser = '';
       for (const objectData of jsonData) {
         const lastUpdate = new Date(objectData.last_update);
         if (lateDate === undefined || lastUpdate >= lateDate) {
           lateDate = lastUpdate;
-          lateUser = objectData.user_entry;
+          lateUser = objectData.fullname_entry;
         }
-        const elemTr = document.createElement('tr');
-        const elemTd = `
-          <td class="align-middle text-center">${objectData.id_kpicorp}</td>
+
+        // add tahunan
+        const elemTrTahunan = document.createElement('tr');
+        let elemTdTahunan = `
           <td class="align-middle text-center">${objectData.name_perspective}</td>
           <td class="align-middle">${objectData.text_sobject}</td>
           <td class="align-middle">
-            <span style="padding-left: ${(objectData.index_kpicorp.split('.').length - 2) * 8}px;">${objectData.index_kpicorp}</span>
+            <span style="padding-left: ${(objectData.index_kpicorp.split('.').length - 2) * 12}px;">${objectData.index_kpicorp} ${objectData.name_kpicorp}</span>
           </td>
-          <td class="align-middle">${objectData.name_kpicorp}</td>
+          <td class="align-middle">${objectData.define_kpicorp}</td>
           <td class="align-middle">${objectData.control_cek_kpicorp}</td>
-          <td class="align-middle">${objectData.polaritas_kpicorp}</td>
           <td class="align-middle text-center">${objectData.name_satuan}</td>
-          <td class="align-middle text-end">${IsEmpty(objectData.baseline_3) ? '-' : objectData.baseline_3}</td>
-          <td class="align-middle"> - </td>
-          <td class="align-middle text-end">${IsEmpty(objectData.baseline_2) ? '-' : objectData.baseline_2}</td>
-          <td class="align-middle"> - </td>
-          <td class="align-middle text-end">${IsEmpty(objectData.baseline_1) ? '-' : objectData.baseline_1}</td>
-          <td class="align-middle"> - </td>
-          <td class="align-middle text-end">${objectData.target_kpicorp}</td>
-          <td class="align-middle"> - </td>
+          <td class="align-middle">${objectData.name_formula}</td>
+          <td class="align-middle">${objectData.polaritas_kpicorp}</td>
+          <td class="align-middle text-end">${!IsEmpty(objectData.baseline_3, true) ? number_format_big(objectData.baseline_3, 2, '.', ',') : '-'}</td>
+          <td class="align-middle">-</td>
+          <td class="align-middle text-end">${!IsEmpty(objectData.baseline_2, true) ? number_format_big(objectData.baseline_2, 2, '.', ',') : '-'}</td>
+          <td class="align-middle">-</td>
+          <td class="align-middle text-end">${!IsEmpty(objectData.baseline_1, true) ? number_format_big(objectData.baseline_1, 2, '.', ',') : '-'}</td>
+          <td class="align-middle">-</td>
+          <td class="align-middle text-end">${!IsEmpty(objectData.target_kpicorp, true) ? number_format_big(objectData.target_kpicorp, 2, '.', ',') : ''}</td>
+          <td class="align-middle">-</td>
         `;
-        elemTr.innerHTML = elemTd;
-        dgUtamaTbody.append(elemTr);
+        elemTrTahunan.innerHTML = elemTd;
+        dgTahunanTbody.append(elemTr);
+
+        // add bulanan
       }
       dgUtamaUserEntry.innerText = lateUser;
       dgUtamaLastUpdate.innerText = lateDate.getFullYear() + '-' + lateDate.getMonth() + '-' + lateDate.getDate() + ' ' + lateDate.getHours() + ':' + lateDate.getMinutes() + ':' + lateDate.getSeconds();
-      funBtnExcelDetailDgUtama = async (e) => {}
-      funBtnPDFDetailDgUtama = async (e) => {}
-
-      btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
-      btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
 
     } else {
-      funBtnExcelDetailDgUtama = async (e) => {}
-      funBtnPDFDetailDgUtama = async (e) => {}
-
       btnMenuPrintDgUtama.disabled = true;
-      btnExcelDetailDgUtama.disabled = true;
-      btnPDFDetailDgUtama.disabled = true;
     }
 
-    funBtnReloadDgUtama = async (e) => {
-      await funViewKPIYear(yearProgress);
-    }
-    btnReloadDgUtama.addEventListener('click', funBtnReloadDgUtama);
   })
   .catch(error => {
     const errorMsg = 'Terjadi kesalahan, Coba beberapa saat lagi!';
-    titleYearKPI.innerText = errorMsg;
     alertComponent.sendAnAlertOnCatch(errorMsg);
     console.error('An error occurred:', error);
   })
@@ -153,22 +118,74 @@ const funViewKPIYear = async (year) => {
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-  btnMenuPrintDgUtama.disabled = true;
-  btnExcelDetailDgUtama.disabled = true;
-  btnPDFDetailDgUtama.disabled = true;
-  btnReloadDgUtama.disabled = true;
-
+  btnMenuPrintDgBulanan.disabled = true;
+  btnLaporanTahunan.disabled = true;
   dgUtamaYearInput.value = null;
+
+  $(`#dgUtamaYearInput`).select2({
+    theme: "bootstrap-5",
+    width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+    placeholder: $( this ).data( 'placeholder' ),
+    allowClear: true,
+    ajax: {
+      url: "route.php?act=jsonTahun",
+      dataType: 'json',
+      method: 'POST',
+      delay: 250,
+      data: function (params) {
+        return {
+          q: params.term,
+          page: params.page || 1
+        };
+      },
+      processResults: function (data) {
+        return {
+          results: data.items,
+          pagination: {
+            more: data.pagination.more
+          }
+        };
+      },
+      cache: true
+    },
+  });
+  // $('#dgUtamaYearInput').on('select2:select', async (e) => {
+  // });
 
   dgUtamaYearBtn.addEventListener('click', async (e) => {
     yearProgress = dgUtamaYearInput.value;
     await funViewKPIYear(yearProgress);
   });
-  dgUtamaYearInput.addEventListener('keyup', async (e) => {
-    if (e.type === 'keyup' && e.key === 'Enter') {
-      yearProgress = dgUtamaYearInput.value;
-      await funViewKPIYear(yearProgress);
-    }
-  });
+    
+  let extraUpperBulanan = '';
+  let extraBottomBulanan = '';
+  for (const month of monthAcro) {
+    extraUpperBulanan += `
+      <th class="align-middle text-center created-js" colspan='2'>${month.full}</th>
+    `;
+    extraBottomBulanan += `
+      <th class="align-middle text-center created-js">Target</th>
+      <th class="align-middle text-center created-js">Realisasi</th>
+    `;
+  }
+  trUpperBulanan.innerHTML = extraUpperBulanan.trim();
+  trBottomBulanan.innerHTML = extraBottomBulanan.trim();
+
+  const sendDataBisnis = new FormData();
+  getDataBisnisUnit = await sendViaFetchForm('route.php?act=getDataBisnisUnit', sendDataBisnis);
+  let extraUpperTahunan = trUpperTahunan.innerHTML.trim();
+  let extraBottomTahunan = trBottomTahunan.innerHTML.trim();
+  for (const bisnisUnit of getBisnisUnitList) {
+    extraUpperTahunan += `
+      <th class="align-middle text-center created-js" colspan='3'>${bisnisUnit.name_company}</th>
+    `;
+    extraBottomTahunan += `
+      <th class="align-middle text-center created-js">Target</th>
+      <th class="align-middle text-center created-js">Realisasi</th>
+      <th class="align-middle text-center created-js">Pencapaian</th>
+    `;
+  }
+  trBottomTahunan.innerHTML = extraBottomTahunan.trim();
+  trUpperTahunan.innerHTML = extraUpperTahunan.trim();
 
 });

@@ -42,7 +42,7 @@
           <button type="button" id="btnPublishDgUtama" class="btn rounded btn-sm btn-publish">
             <span class="d-inline-block ps-1">Terbit KPI</span>
           </button>
-          <div class="btn-group" role="group" aria-label="Button Print">
+          <!-- <div class="btn-group" role="group" aria-label="Button Print">
             <button type="button" id="btnMenuPrintDgUtama" class="btn btn-sm btn-print dropdown-toggle" data-bs-toggle="dropdown" data-bs-target="#menuPrintDgUtama" aria-expanded="false">
               <span class="d-inline-block ps-1">Cetak</span>
             </button>
@@ -60,7 +60,7 @@
                 </button>
               </li>
             </ul>
-          </div>
+          </div> -->
           <button type="button" id="btnReloadDgUtama" class="btn rounded btn-sm btn-reload"></button>
         </div>
       </div>

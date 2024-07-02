@@ -3,7 +3,6 @@ include_once(__DIR__ . '/../../koneksi.php');
 require (__DIR__ . '/../../../third-party/html2pdf-5/autoload.php');
 
 $db = new database();
-$db->konek_sita_db();
 
 $sql_w = "SELECT cm.*, a.user_entry, a.last_update, a.id_det_company, a.golongan,
 b.id_section, b.name_section,
@@ -17,7 +16,6 @@ left join plant_master d on d.id_plant = a.id_plant
 left join position_master e on e.id_position = a.id_position
 where a.last_update is not null
 order by cm.id_company asc, a.id_det_company asc";
-$db->konek_sita_db();
 $query = $db->sendQuery($db->konek_sita_db(), $sql_w);
 $items = pg_fetch_all($query);
 
@@ -48,39 +46,40 @@ $content = "
     }
 	</style>
 	<page>
-	<div style='position:absolute;margin-top:10px;'>";
-		//<img src='../../image/(file)' alt='#' style='height:45px;'/>
-$content .= "
-	</div>	
-	<page_footer class='page-footer'>
-		page [[page_cu]] of [[page_nb]]
-  </page_footer>
-	<div style='margin-top:0px;margin-left:1310px'>
-		<p align=''>Bekasi, ".$date."<br>Print By : ".$_SESSION["user_kpi_askara"]."</p>
-	</div>
+    <page_footer class='page-footer'>
+      page [[page_cu]] of [[page_nb]]
+    </page_footer>";
 
-	<div>
+    // <div style='position:absolute;margin-top:10px;'>
+		//   <img src='../../image/(file)' alt='#' style='height:45px;'/>
+    // </div>
+
+$content .= "
+    <div style='margin-top:0px;margin-left:1310px'>
+      <p align=''>Bekasi, ".$date."<br>Print By : ".$_SESSION["user_kpi_askara"]."</p>
+    </div>
+
+	  <div>
 		
-	<h3 align='center'>Master Perusahaan</h3>
-		<table align='center' style='font-size:10px;'>
-			<tr>
-				<th valign='middle' align='center' style='height:30px;'>No.</th>
-				<th valign='middle' align='center' style='height:30px;'>Kode Perusahaan</th>
-				<th valign='middle' align='center' style='height:30px;'>Nama Perusahaan</th>
-				<th valign='middle' align='center' style='height:30px;'>Singkatan</th>
-				<th valign='middle' align='center' style='height:30px;'>Grup</th>
-				<th valign='middle' align='center' style='height:30px;'>Customer</th>
-				<th valign='middle' align='center' style='height:30px;'>Suplier</th>
-				<th valign='middle' align='center' style='height:30px;'>Kode Detail Struktur</th>
-				<th valign='middle' align='center' style='height:30px;'>Department</th>
-				<th valign='middle' align='center' style='height:30px;'>Divisi</th>
-				<th valign='middle' align='center' style='height:30px;'>Posisi</th>
-				<th valign='middle' align='center' style='height:30px;'>Plant</th>
-				<th valign='middle' align='center' style='height:30px;'>Golongan</th>
-				<th valign='middle' align='center' style='height:30px;'>Pengguna Terakhir</th>
-				<th valign='middle' align='center' style='height:30px;'>Pembaharuan Terakhir</th>
-								
-			</tr>";
+      <h3 align='center'>Master Perusahaan</h3>
+      <table align='center' style='font-size:10px;'>
+        <tr>
+          <th valign='middle' align='center' style='height:30px;'>No.</th>
+          <th valign='middle' align='center' style='height:30px;'>Kode Perusahaan</th>
+          <th valign='middle' align='center' style='height:30px;'>Nama Perusahaan</th>
+          <th valign='middle' align='center' style='height:30px;'>Singkatan</th>
+          <th valign='middle' align='center' style='height:30px;'>Grup</th>
+          <th valign='middle' align='center' style='height:30px;'>Customer</th>
+          <th valign='middle' align='center' style='height:30px;'>Suplier</th>
+          <th valign='middle' align='center' style='height:30px;'>Kode Detail Struktur</th>
+          <th valign='middle' align='center' style='height:30px;'>Department</th>
+          <th valign='middle' align='center' style='height:30px;'>Divisi</th>
+          <th valign='middle' align='center' style='height:30px;'>Posisi</th>
+          <th valign='middle' align='center' style='height:30px;'>Plant</th>
+          <th valign='middle' align='center' style='height:30px;'>Golongan</th>
+          <th valign='middle' align='center' style='height:30px;'>Pengguna Terakhir</th>
+          <th valign='middle' align='center' style='height:30px;'>Pembaharuan Terakhir</th>
+        </tr>";
 if (!empty($items)) {
 	foreach ($items as $key => $value) {
 		$id = $value['id_company'];
@@ -98,23 +97,23 @@ if (!empty($items)) {
 		$user_entry = $value['user_entry'];
 		$last_update = $value['last_update'];
 		$content .= "
-		<tr>
-			<td valign='middle' align='center'>$nourut</td>
-			<td valign='middle' style='text-align:center;'>$id</td>
-			<td valign='middle' style='width:180px;text-align:center;'>$comp</td>
-			<td valign='middle' style='width:text-align:center;'>$alias</td>
-			<td valign='middle' style='width:50px;text-align:center;'>$gp</td>
-			<td valign='middle' style='width:50px;text-align:center;'>$cs</td>
-			<td valign='middle' style='width:50px;text-align:center;'>$sp</td>
-      <td valign='middle' style='text-align:center;'>$id_det</td>
-      <td valign='middle' style='width:140px;'>$dep</td>
-      <td valign='middle' style='width:120px'>$sec</td>
-      <td valign='middle' style='width:100px;text-align:center;'>$pos</td>
-      <td valign='middle' style='text-align:center;'>$plant</td>
-      <td valign='middle' style='text-align:center;'>$gol</td>
-      <td valign='middle' style='text-align:center;'>$user_entry</td>
-      <td valign='middle' style='text-align:center;'>$last_update</td>
-		</tr>
+        <tr>
+          <td valign='middle' align='center'>$nourut</td>
+          <td valign='middle' style='text-align:center;'>$id</td>
+          <td valign='middle' style='text-align:center;'>$comp</td>
+          <td valign='middle' style='text-align:center;'>$alias</td>
+          <td valign='middle' style='width:50px;text-align:center;'>$gp</td>
+          <td valign='middle' style='width:50px;text-align:center;'>$cs</td>
+          <td valign='middle' style='width:50px;text-align:center;'>$sp</td>
+          <td valign='middle' style='text-align:center;'>$id_det</td>
+          <td valign='middle' style='width:140px;'>$dep</td>
+          <td valign='middle' style='width:120px'>$sec</td>
+          <td valign='middle' style='width:100px;text-align:center;'>$pos</td>
+          <td valign='middle' style='text-align:center;'>$plant</td>
+          <td valign='middle' style='text-align:center;'>$gol</td>
+          <td valign='middle' style='text-align:center;'>$user_entry</td>
+          <td valign='middle' style='text-align:center;'>$last_update</td>
+        </tr>
 			";
 			$nourut++;
 	}

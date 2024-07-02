@@ -2,14 +2,14 @@
   require_once('../notes_form.php');
   require_once('../header_view.php');
 ?>
-  <title>REPORT KPI REALIZATION BUSSINES UNIT</title>
+  <title>LAPORAN KPI BISNIS UNIT</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <?php
     require_once('../body_main_js.php');
   ?>
-  <h1 class="text-center fw-bold m-0 pb-4 pt-1">REPORT KPI REALIZATION BUSSINES UNIT</h1>
+  <h1 class="text-center fw-bold m-0 pb-4 pt-1">LAPORAN KPI BISNIS UNIT<span class="dgTarget"></span></h1>
 
   <!-- Table Utama -->
   <div class="container-fluid px-5 pb-4">
@@ -18,7 +18,6 @@
         <div class="d-inline-flex flex-wrap mb-3 border border-primary rounded py-2 px-3" style="gap: 1em;" id="mainPage">
           <label for="dgUtamaYearInput" class="form-label mb-0 fs-4">Tahun</label>
           <select class="form-select dgUtamaYearInput" name="dgUtamaYearInput" id="dgUtamaYearInput" data-placeholder="Masukan tahun..." style="width: 140px;"></select>
-          <!-- <input type="number" class="form-control form-control-sm" id="dgUtamaYearInput" placeholder="Tahun KPI..." aria-label="dgUtamaYearInput" aria-describedby="dgUtamaYearInput" style="width: 150px;"> -->
           <button class="btn btn-sm btn-process" type="button" id="dgUtamaYearBtn">
             <span class="d-inline-block ps-1">PROSES</span>
           </button>
@@ -30,15 +29,39 @@
             </button>
             <ul class="dropdown-menu dropdown-print" id="menuPrintDgUtama">
               <li>
-                <button type="button" class="dropdown-item" id="btnExcelDetailDgUtama">
+                <button type="button" class="dropdown-item" id="btnLaporanTahunan">
                   <i class="fa-solid fa-file-excel"></i>
-                  <span class="d-inline-block ps-1">Detail Excel</span>
+                  <span class="d-inline-block ps-1">Laporan Tahunan</span>
                 </button>
               </li>
               <li>
-                <button type="button" class="dropdown-item" id="btnPDFDetailDgUtama">
-                  <i class="fa-solid fa-file-pdf"></i>
-                  <span class="d-inline-block ps-1">Detail PDF</span>
+                <button type="button" class="dropdown-item" id="btnLaporanQuartal1">
+                  <i class="fa-solid fa-file-excel"></i>
+                  <span class="d-inline-block ps-1">Laporan Quartal 1</span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-item" id="btnLaporanQuartal2">
+                  <i class="fa-solid fa-file-excel"></i>
+                  <span class="d-inline-block ps-1">Laporan Quartal 2</span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-item" id="btnLaporanQuartal3">
+                  <i class="fa-solid fa-file-excel"></i>
+                  <span class="d-inline-block ps-1">Laporan Quartal 3</span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-item" id="btnLaporanQuartal4">
+                  <i class="fa-solid fa-file-excel"></i>
+                  <span class="d-inline-block ps-1">Laporan Quartal 4</span>
+                </button>
+              </li>
+              <li>
+                <button type="button" class="dropdown-item" id="btnLaporanBulanan">
+                  <i class="fa-solid fa-file-excel"></i>
+                  <span class="d-inline-block ps-1">Laporan Bulanan</span>
                 </button>
               </li>
             </ul>
@@ -50,19 +73,16 @@
     <div class="d-block overflow-auto w-100 position-relative rounded-top">
       <table id="dgUtama" class="table table-hover table-striped table-bordered w-100 nowrap table-nowrap">
         <thead class="table-dark">
-          <tr>
-            <th class="align-middle text-center" colspan="19" id="titleYearKPI">KPI ()</th>
-          </tr>
           <tr id="thUpper">
-            <th class="align-middle text-center" rowspan="2">Kode Document</th>
             <th class="align-middle text-center" rowspan="2">Perspektif</th>
             <th class="align-middle text-center" rowspan="2">Strategi Objektif</th>
-            <th class="align-middle text-center" rowspan="2">Index</th>
-            <th class="align-middle text-center" rowspan="2">Nama KPI</th>
+            <th class="align-middle text-center" rowspan="2">Layout KPI</th>
+            <th class="align-middle text-center" rowspan="2">Definisi KPI</th>
             <th class="align-middle text-center" rowspan="2">Control Cek</th>
+            <th class="align-middle text-center" rowspan="2">Satuan (UOM)</th>
+            <th class="align-middle text-center" rowspan="2">Formula</th>
             <th class="align-middle text-center" rowspan="2">Polaritas</th>
-            <th class="align-middle text-center" rowspan="2">UOM</th>
-            <th class="align-middle text-center" rowspan="2">Target Korporat</th>
+            <th class="align-middle text-center" colspan="12">Nilai Perbulannya</th>
           </tr>
           <tr id="thBottom">
           </tr>
