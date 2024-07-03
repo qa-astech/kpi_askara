@@ -2,31 +2,36 @@
   require_once('../notes_form.php');
   require_once('../header_view.php');
 ?>
-  <title>REPORT KPI REALIZATION ALL DEPARTEMENT</title>
+  <title>LAPORAN KPI BISNIS UNIT</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <?php
     require_once('../body_main_js.php');
   ?>
-  <h1 class="text-center fw-bold m-0 pb-4 pt-1">REPORT KPI REALIZATION ALL DEPARTEMENT</h1>
+  <h1 class="text-center fw-bold m-0 pb-4 pt-2">LAPORAN KPI BISNIS UNIT<span class="yearKPI"></span></h1>
 
-  <!-- Table Utama -->
-  <div class="container-fluid px-5 pb-4">
-    <div class="d-flex flex-wrap justify-content-between">
+  <div class="container-fluid px-3 pb-4">
+    <div class="d-flex flex-wrap justify-content-between mb-3">
       <div>
-        <table class="mb-3">
+        <table>
           <tbody>
             <tr>
-              <td class="pt-2 pe-3"><label for="dgUtamaYearInput" class="form-label mb-0 fs-5">Tahun <span class="fw-bold text-danger">*</span></label></td>
-              <td class="pt-2 pe-3">
-              <select class="form-select form-select-sm" name="dgUtamaYearInput" id="dgUtamaYearInput" data-placeholder="Masukan tahun..." style="width: 310px;"></select>
+              <td class="pe-3"><label for="dgUtamaYearInput" class="form-label mb-0 fs-5">Tahun <span class="fw-bold text-danger">*</span></label></td>
+              <td class="pe-3"><input type="number" class="form-control form-control-sm" id="dgUtamaYearInput" placeholder="Tahun KPI..." aria-label="dgUtamaYearInput" aria-describedby="dgUtamaYearInput" style="width: 200px;"></td>
               <td></td>
             </tr>
             <tr>
               <td class="pt-2 pe-3"><label for="dgUtamaCompanyInput" class="form-label mb-0 fs-5">Perusahaan <span class="fw-bold text-danger">*</span></label></td>
               <td class="pt-2 pe-3">
                 <select class="form-select form-select-sm" name="dgUtamaCompanyInput" id="dgUtamaCompanyInput" data-placeholder="Masukan Perusahaan..." style="width: 310px;"></select>
+              </td>
+              <td class="pt-2"></td>
+            </tr>
+            <tr>
+              <td class="pt-2 pe-3"><label for="dgUtamaDepartmentInput" class="form-label mb-0 fs-5">Departemen <span class="fw-bold text-danger">*</span></label></td>
+              <td class="pt-2 pe-3">
+                <select class="form-select form-select-sm" name="dgUtamaDepartmentInput" id="dgUtamaDepartmentInput" data-placeholder="Masukan Departemen..." style="width: 310px;"></select>
               </td>
               <td class="pt-2">
                 <button class="btn btn-sm btn-process" type="button" id="dgUtamaYearBtn">
@@ -36,128 +41,59 @@
             </tr>
           </tbody>
         </table>
-        <div class="d-flex flex-wrap mb-2" style="gap: 1em;">
-          <div class="btn-group" role="group" aria-label="Button Print">
-            <button type="button" id="btnMenuPrintDgUtama" class="btn btn-sm btn-print dropdown-toggle" data-bs-toggle="dropdown" data-bs-target="#menuPrintDgUtama" aria-expanded="false">
-              <span class="d-inline-block ps-1">Cetak</span>
-            </button>
-            <ul class="dropdown-menu dropdown-print" id="menuPrintDgUtama">
-              <li>
-                <button type="button" class="dropdown-item" id="btnExcelDetailDgUtama">
-                  <i class="fa-solid fa-file-excel"></i>
-                  <span class="d-inline-block ps-1">Detail Excel</span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="dropdown-item" id="btnPDFDetailDgUtama">
-                  <i class="fa-solid fa-file-pdf"></i>
-                  <span class="d-inline-block ps-1">Detail PDF</span>
-                </button>
-              </li>
-            </ul>
-          </div>
-          <button type="button" id="btnReloadDgUtama" class="btn rounded btn-sm btn-reload"></button>
-        </div>
+      </div>
+      <div>
+        <table>
+          <tbody>
+            <tr>
+              <th>Pengguna Terakhir</th>
+              <th class="px-2">:</th>
+              <th id="dgUtamaUserEntry" class="text-danger"></th>
+            </tr>
+            <tr>
+              <th>Pembaharuan Terakhir</th>
+              <th class="px-2">:</th>
+              <th id="dgUtamaLastUpdate" class="text-danger"></th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="my-3">
+        <button type="button" id="btnLaporan" class="btn btn-sm btn-print rounded">
+          <span class="d-inline-block ps-1">Cetak Laporan</span>
+        </button>
       </div>
     </div>
     <div class="d-block overflow-auto w-100 position-relative rounded-top">
-      <table id="dgUtama" class="table table-hover table-striped table-bordered w-100 nowrap table-nowrap">
+      <table id="dgLaporan" class="table table-hover table-striped table-bordered w-100 nowrap table-nowrap">
         <thead class="table-dark">
           <tr>
-            <th class="align-middle text-center" colspan="19" id="titleYearKPI">KPI ()</th>
-          </tr>
-          <tr id="thUpper">
-            <th class="align-middle text-center" rowspan="2">Kode Document</th>
-            <th class="align-middle text-center" rowspan="2">Nama Perusahaan</th>
             <th class="align-middle text-center" rowspan="2">Perspektif</th>
             <th class="align-middle text-center" rowspan="2">Strategi Objektif</th>
-            <th class="align-middle text-center" rowspan="2">Index</th>
-            <th class="align-middle text-center" rowspan="2">Nama KPI</th>
+            <th class="align-middle text-center" rowspan="2">Layout KPI</th>
+            <th class="align-middle text-center" rowspan="2">Definisi KPI</th>
             <th class="align-middle text-center" rowspan="2">Control Cek</th>
-            <th class="align-middle text-center" rowspan="2">Polaritas</th>
             <th class="align-middle text-center" rowspan="2">UOM</th>
-            <th class="align-middle text-center" rowspan="2">Target Bisnis Unit</th>
+            <th class="align-middle text-center" rowspan="2">Formula</th>
+            <th class="align-middle text-center" rowspan="2">Polaritas</th>
+            <th class="align-middle text-center" rowspan="2">Baseline<span id="dgUtamaYear1"></span></th>
+            <th class="align-middle text-center" rowspan="2">Target<br>Tahun<span class="yearKPI"></span></th>
+            <th class="align-middle text-center" colspan="24">Realisasi Bulanan</th>
+            <th class="align-middle text-center" rowspan="2">Total Realisasi</th>
+            <th class="align-middle text-center" rowspan="2">Pencapaian<br>Keseluruhan</th>
           </tr>
-          <tr id="thBottom">
+          <tr id="trUpperLaporan">
+          </tr>
+          <tr id="trBottomLaporan">
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
-  </div>
-
-  <!-- Modal Editor -->
-  <div class="modal fade" id="modalEditor" tabindex="-1" role="dialog" aria-labelledby="modalEditor" aria-hidden="true" style="z-index: 2000;">
-    <div class="modal-dialog modal-fullscreen" role="document">
-      <div class="modal-content">
-        <div class="modal-header bg-dark">
-          <h5 class="modal-title fw-bold text-white">REPORT KPI REALIZATION DEPARTEMENT</h5>
-          <button type="button" class="btn btn-x" data-bs-dismiss="modal" data-bs-target="#modalEditor" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="d-flex justify-content-start align-items-start" style="gap: 1.5rem;">
-            <div>
-              <div>
-                <table class="table table-borderless w-100 nowrap table-information">
-                  <tbody>
-                    <tr>
-                      <th class="ps-0" style="white-space: nowrap;">Tahun KPI</th>
-                      <th class="px-1">:</th>
-                      <td id="modalEditorTahunKPI"></td>
-                    </tr>
-                    <tr>
-                      <th class="ps-0" style="white-space: nowrap;">Perusahaan</th>
-                      <th class="px-1">:</th>
-                      <td id="modalEditorCompanyKPI" style="white-space: nowrap;"></td>
-                    </tr>
-                    <tr>
-                      <th class="ps-0" style="white-space: nowrap;">Departemen</th>
-                      <th class="px-1">:</th>
-                      <td id="modalEditorDepartmentKPI"></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <div class="container-fluid" style="overflow: auto;">
-            <form enctype="multipart/form-data" id="formEditor">
-              <table id="dgEditor" class="table table-striped table-bordered w-100 nowrap dg-editor">
-                <thead class="table-dark">
-                  <tr>
-                    <th class="align-middle text-center" rowspan="2">Kode Document</th>
-                    <th class="align-middle text-center" rowspan="2">Nama Perusahaan </th>
-                    <th class="align-middle text-center" rowspan="2">Departemen </th>
-                    <th class="align-middle text-center" rowspan="2">Persepektif</th>
-                    <th class="align-middle text-center" rowspan="2">Index</th>
-                    <th class="align-middle text-center" rowspan="2">Nama KPI</th>
-                    <th class="align-middle text-center" rowspan="2">Control Cek</t h>
-                    <th class="align-middle text-center" rowspan="2">Formula</th>
-                    <th class="align-middle text-center" rowspan="2">Polaritas</th>
-                    <th class="align-middle text-center" rowspan="2">UOM</th>
-                    <th class="align-middle text-center" rowspan="2">Cascade</th>
-                    <th class="align-middle text-center" rowspan="2">Target Bisnis Unit</th>
-                    <th class="align-middle text-center" rowspan="2" id="beforeBulanHeader">Target Departemen </th>
-                    <th class="align-middle text-center" rowspan="2">Efidiance</th>
-                  </tr>
-                  <tr id="monthTarget">
-                  </tr>
-                </thead>
-                <tbody id="idTargetTbody"></tbody>
-              </table>
-            </form>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-sm btn-keluar" data-bs-dismiss="modal" data-bs-target="#modalEditor">
-            <span class="ps-1">Keluar</span>
-          </button>
-          <button type="button" class="btn btn-sm btn-save" id="modalEditorBtnSave">
-            <span class="ps-1">Simpan</span>
-          </button>
-        </div>
-      </div>
-    </div>
+    
   </div>
 
   <script type="module" src="scripts.js"></script>

@@ -10,11 +10,6 @@ switch ($request) {
     echo $classRoute->getKpiBisnisUnit();
     break;
 
-  case 'getDataBisnisUnit':
-    $classRoute = new kpi_bisnis_unit();
-    echo $classRoute->getDataBisnisUnit();
-    break;
-
   case 'jsonTahun':
     $classRoute = new kpi_bisnis_unit();
     echo $classRoute->jsonTahun();

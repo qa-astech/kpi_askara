@@ -10,20 +10,26 @@ class department_master extends database {
 
   public function jsonDepartment(){
     try {
-      global $cleanWord;
-      $q = $cleanWord->textCk(@$_POST["q"], false, 'trim');
+      global $cleanWordPDO;
+      $q = $cleanWordPDO->textCk(@$_POST["q"], false);
       $page = isset($_POST['page']) && is_numeric($_POST['page']) ? $_POST['page'] : 1;
       $records_per_page = 10;
       $offset = ($page - 1) * $records_per_page;
 
-      $cek = "SELECT distinct id_department as id, name_department as text from department_master where name_department ilike '%$q%'";
-      $cek_main = $cek . " order by id_department asc offset $offset limit $records_per_page";
-      $query = $this->sendQuery($this->konek_sita_db(), $cek_main);
-      $items = empty(pg_fetch_all($query)) ? array() : $cleanWord->cleaningArrayHtml(pg_fetch_all($query));
+      $cek = "SELECT distinct id_department as id, name_department as text from department_master where name_department ilike :search";
+      $cek_main = $cek . " order by id_department asc offset :offset limit :recordsPerPage";
+      $query_main = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_main, array(
+        ':search' => '%'.$q.'%',
+        ':offset' => $offset,
+        ':recordsPerPage' => $records_per_page
+      ));
+      $items = $query_main->fetchAll();
 
       $cek_count = "SELECT count(*) from ($cek) tbl";
-      $query_count = $this->sendQuery($this->konek_sita_db(), $cek_count);
-      $total_count = pg_fetch_all($query_count);
+      $query_count = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_count, array(
+        ':search' => '%'.$q.'%'
+      ));
+      $total_count = $query_count->fetchAll();
 
       $response = array(
         "items" => $items,
@@ -32,6 +38,17 @@ class department_master extends database {
         )
       );
       return json_encode($response);
+    } catch (Exception $e) {
+      $response = array();
+      return json_encode($response);
+    }
+  }
+
+  public function getAllDepartment(){
+    try {
+      $cek = "SELECT * from department_master";
+      $query_main = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek, array());
+      return json_encode($query_main->fetchAll());
     } catch (Exception $e) {
       $response = array();
       return json_encode($response);

@@ -64,8 +64,6 @@
             <th class="align-middle text-center" colspan="3">Baseline (<span id="dgUtamaYear2"></span>)</th>
             <th class="align-middle text-center" colspan="3">Baseline (<span id="dgUtamaYear1"></span>)</th>
             <th class="align-middle text-center" rowspan="2">Target Korporat</th>
-            <th class="align-middle text-center" rowspan="2">Total Realisasi</th>
-            <th class="align-middle text-center" rowspan="2">Pencapaian</th>
           </tr>
           <tr id="trBottomTahunan">
             <th class="align-middle text-center">Target</th>
@@ -111,23 +109,23 @@
       <table id="dgBulanan" class="table table-hover table-striped table-bordered w-100 nowrap table-nowrap">
         <thead class="table-dark">
           <tr>
-            <th class="align-middle text-center" rowspan="3">Perspektif</th>
-            <th class="align-middle text-center" rowspan="3">Strategi Objektif</th>
-            <th class="align-middle text-center" rowspan="3">Layout KPI</th>
-            <th class="align-middle text-center" rowspan="3">Definisi KPI</th>
-            <th class="align-middle text-center" rowspan="3">Control Cek</th>
-            <th class="align-middle text-center" rowspan="3">UOM</th>
-            <th class="align-middle text-center" rowspan="3">Formula</th>
-            <th class="align-middle text-center" rowspan="3">Polaritas</th>
-            <th class="align-middle text-center" rowspan="3">Target Tahunan<span class="yearKPI"></span></th>
-            <th class="align-middle text-center" colspan="24">Target Bulanan</th>
-            <th class="align-middle text-center" rowspan="3">Total Realisasi</th>
-            <th class="align-middle text-center" rowspan="3">Pencapaian</th>
+            <th class="align-middle text-center" rowspan="2">Perspektif</th>
+            <th class="align-middle text-center" rowspan="2">Strategi Objektif</th>
+            <th class="align-middle text-center" rowspan="2">Layout KPI</th>
+            <th class="align-middle text-center" rowspan="2">Definisi KPI</th>
+            <th class="align-middle text-center" rowspan="2">Control Cek</th>
+            <th class="align-middle text-center" rowspan="2">UOM</th>
+            <th class="align-middle text-center" rowspan="2">Formula</th>
+            <th class="align-middle text-center" rowspan="2">Polaritas</th>
+            <th class="align-middle text-center" rowspan="2">Target<br>Tahun<span class="yearKPI"></span></th>
+            <th class="align-middle text-center" colspan="12">Realisasi Bulanan</th>
+            <th class="align-middle text-center" rowspan="2">Total Realisasi</th>
+            <th class="align-middle text-center" rowspan="2">Pencapaian<br>Keseluruhan</th>
           </tr>
           <tr id="trUpperBulanan">
           </tr>
-          <tr id="trBottomBulanan">
-          </tr>
+          <!-- <tr id="trBottomBulanan">
+          </tr> -->
         </thead>
         <tbody></tbody>
       </table>

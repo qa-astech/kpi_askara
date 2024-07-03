@@ -10,6 +10,10 @@ switch ($request) {
     echo $classRoute->getDepartment();
     break;
 
+  case 'getAllDepartment':
+    echo $classRoute->getAllDepartment();
+    break;
+
   case 'jsonDepartment':
     echo $classRoute->jsonDepartment();
     break;

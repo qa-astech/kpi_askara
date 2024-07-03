@@ -44,7 +44,74 @@ class kpi_corporate extends database {
         ':yearBaseline3' => $year_baseline3,
         ':yearKpiCorp' => $year_kpi_corp
       ));
-      return json_encode($query->fetchAll());
+      $main_data = $query->fetchAll();
+
+      $cek_month = "SELECT id_kpicorp, month_realisasi, sum(realisasi) realisasi
+      from (
+        SELECT distinct id_kpicorp, month_kpidept as month_realisasi, sum(value_kpidept_real) as realisasi
+        from target_distinct_kpicorps_dept
+        where id_kpicorp IN (SELECT distinct id_kpicorp from kpi_corporate where year_kpicorp = :yearKpiCorp and terbit_kpicorp = true)
+        group by id_kpicorp, month_kpidept
+        UNION ALL
+        SELECT distinct id_kpicorp, month_kpidivcorp as month_realisasi, sum(value_kpidivcorp_real) as realisasi
+        from target_distinct_kpicorps_divcorp
+        where id_kpicorp IN (SELECT distinct id_kpicorp from kpi_corporate where year_kpicorp = :yearKpiCorp and terbit_kpicorp = true)
+        group by id_kpicorp, month_kpidivcorp
+      ) tbl
+      group by id_kpicorp, month_realisasi
+      order by month_realisasi asc";
+      $query_month = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_month, array(
+        ':yearKpiCorp' => $year_kpi_corp,
+        ':yearKpiCorp' => $year_kpi_corp
+      ));
+      $data_month = $query_month->fetchAll();
+
+      $cek_year = "SELECT distinct id_kpicorp, id_company as compkpi_id, name_company as compkpi_name, target_kpibunit as target_bisnis, sum(value_kpidept_real) as realisasi
+      from target_distinct_kpicorps_dept
+      where id_kpicorp IN (SELECT distinct id_kpicorp from kpi_corporate where year_kpicorp = :yearKpiCorp and terbit_kpicorp = true)
+      group by id_kpicorp, id_company, name_company, target_kpibunit
+      UNION ALL
+      SELECT distinct id_kpicorp, id_department as compkpi_id, name_department as compkpi_name, sum(target_kpidivcorp) as target_bisnis, sum(value_kpidivcorp_real) as realisasi
+      from target_distinct_kpicorps_divcorp
+      where id_kpicorp IN (SELECT distinct id_kpicorp from kpi_corporate where year_kpicorp = :yearKpiCorp and terbit_kpicorp = true)
+      group by id_kpicorp, id_department, name_department";
+      $query_year = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_year, array(
+        ':yearKpiCorp' => $year_kpi_corp,
+        ':yearKpiCorp' => $year_kpi_corp
+      ));
+      $data_year = $query_year->fetchAll();
+
+      $cek_total_realisasi = "SELECT id_kpicorp, sum(realisasi) total_realisasi
+      from (
+        SELECT distinct id_kpicorp, sum(value_kpidept_real) as realisasi
+        from target_distinct_kpicorps_dept
+        where id_kpicorp IN (SELECT distinct id_kpicorp from kpi_corporate where year_kpicorp = :yearKpiCorp and terbit_kpicorp = true)
+        group by id_kpicorp
+        UNION ALL
+        SELECT distinct id_kpicorp, sum(value_kpidivcorp_real) as realisasi
+        from target_distinct_kpicorps_divcorp
+        where id_kpicorp IN (SELECT distinct id_kpicorp from kpi_corporate where year_kpicorp = :yearKpiCorp and terbit_kpicorp = true)
+        group by id_kpicorp
+      ) tbl
+      group by id_kpicorp";
+      $query_total_realisasi = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_total_realisasi, array(
+        ':yearKpiCorp' => $year_kpi_corp,
+        ':yearKpiCorp' => $year_kpi_corp
+      ));
+      $data_total_realisasi = $query_total_realisasi->fetchAll();
+
+      foreach ($main_data as $key => $value) {
+        $main_data[$key]['month'] = array_filter($data_month, function($filterVal) use ($value) {
+          return $filterVal['id_kpicorp'] === $value['id_kpicorp'];
+        });
+        $main_data[$key]['year'] = array_filter($data_year, function($filterVal) use ($value) {
+          return $filterVal['id_kpicorp'] === $value['id_kpicorp'];
+        });
+        $main_data[$key]['totalRealisasi'] = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
+          return $filterVal['id_kpicorp'] === $value['id_kpicorp'];
+        }), 'total_realisasi')[0];
+      }
+      return json_encode($main_data);
 
     } catch (Exception $e) {
       $response = array();
@@ -95,7 +162,7 @@ class kpi_corporate extends database {
       $cek = "SELECT * FROM (
         SELECT id_company, name_company, 1::integer ordering_data from company_master
         UNION ALL
-        SELECT id_section as id_company, 'Divisi Korporat ' || name_section as name_company, 2::integer ordering_data from section_master
+        SELECT id_department as id_company, 'DIVISI KORPORAT ' || name_department as name_company, 2::integer ordering_data from department_master
       ) tbl order by ordering_data asc, name_company asc";
       $query = $this->sendQuery($this->konek_sita_db(), $cek);
       $response = empty(pg_fetch_all($query)) ? array() : pg_fetch_all($query);
