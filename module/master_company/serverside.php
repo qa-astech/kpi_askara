@@ -219,6 +219,12 @@ class company_master extends database {
 
   public function getCompany(){
     global $cleanWord;
+    $_POST['columns'] = array_map(function($v) {
+      if ($v['data'] === 'fullname_entry') {
+        $v['data'] = 'fullname_users';
+      }
+      return $v;
+    }, $_POST['columns']);
     try {
       // View Column
       $viewColumn = array(
@@ -228,13 +234,9 @@ class company_master extends database {
         'stat_group' => 'a',
         'stat_customer' => 'a',
         'stat_supplier' => 'a',
-        'user_entry' => 'a',
+        'fullname_users' => 'bb',
         'last_update' => 'a'
       );
-      // Total
-      $totalRecordsQuery = "SELECT COUNT(*) FROM company_master";
-      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
-      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
       // Offset
       $start = $_POST['start'];
       // Limit
@@ -267,7 +269,19 @@ class company_master extends database {
         $filtering .= !empty($searchValue) ? "and " . $viewColumn[$column] . ".$column::text ilike '%$searchValue%' " : "";
       }
 
-      $cek = "SELECT a.* from company_master a
+      // Total
+      $totalRecordsQuery = "SELECT COUNT(*)
+      from company_master a
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
+      where a.last_update is not null $filtering $searching";
+      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
+      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
+
+      $cek = "SELECT a.*, bb.fullname_users fullname_entry, bb.nik_users nik_entry
+      from company_master a
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
       where a.last_update is not null $filtering $searching
       order by $ordering
       offset $start limit $length

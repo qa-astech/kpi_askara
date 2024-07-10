@@ -1,6 +1,7 @@
 import {
   CheckIsObjectEmpty, IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5,
-  findSmallest, findSmallestObjectPerspective, number_format
+  findSmallest, findSmallestObjectPerspective, number_format,
+  checkBooleanFromServer
 } from '../../../third-party/utility-yudhi/utils.js';
 
 const alertComponent = new AlertElemBS5('alertComponent1');
@@ -307,7 +308,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               trElem.innerHTML += `
                 <td data-month="${element.number}">
                   <div class="d-flex justify-content-center align-items-center">
-                    <input type="checkbox" id="${filteringArr.idTargetMonth}" class="chkbx-toggle" data-tbl-target="${filteringArr.tblTarget}" value="${filteringArr.idTargetMonth}" ${filteringArr.lockStatus === 't' ? 'checked' : ''}>
+                    <input type="checkbox" id="${filteringArr.idTargetMonth}" class="chkbx-toggle" data-tbl-target="${filteringArr.tblTarget}" value="${filteringArr.idTargetMonth}" ${checkBooleanFromServer(filteringArr.lockStatus) ? 'checked' : ''}>
                     <label for="${filteringArr.idTargetMonth}"></label>
                   </div>
                 </td>

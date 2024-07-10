@@ -15,6 +15,10 @@ switch ($request) {
     echo $classRoute->searchDepartmentFromCompany();
     break;
 
+  case 'getAllDepartmentFromCompany':
+    echo $classRoute->getAllDepartmentFromCompany();
+    break;
+
   case 'addDetailCompany':
     echo $classRoute->addDetailCompany();
     break;

@@ -1,5 +1,4 @@
 <?php
-error_reporting(0);
 class kpi_bisnis_unit extends database {
 
   public function __construct(){

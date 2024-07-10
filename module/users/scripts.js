@@ -1,4 +1,4 @@
-import { IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5 } from '../../../third-party/utility-yudhi/utils.js';
+import { IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5, checkBooleanFromServer } from '../../../third-party/utility-yudhi/utils.js';
 $.fn.dataTable.ext.errMode = 'none';
 
 const btnElemDgUtama = `
@@ -67,7 +67,7 @@ class DgUtama {
             { data: 'username_users' },
             { data: 'fullname_users' },
             {
-              data: 'user_entry',
+              data: 'fullname_entry',
               className: 'text-center'
             },
             {
@@ -191,18 +191,22 @@ class DgDetail {
               data: 'status_active',
               className: 'text-center',
               render: function ( data, type, row, meta ) {
-                return data === "t" ? `<i class="fa-solid fa-check text-success"></i>` : `<i class="fa-solid fa-xmark text-danger"></i>`;
+                return checkBooleanFromServer(data)
+                  ? `<i class="fa-solid fa-check text-success"></i>`
+                  : `<i class="fa-solid fa-xmark text-danger"></i>`;
               }
             },
             {
               data: 'role_utama',
               className: 'text-center',
               render: function ( data, type, row, meta ) {
-                return data === "t" ? `<i class="fa-solid fa-check text-success"></i>` : `<i class="fa-solid fa-xmark text-danger"></i>`;
+                return checkBooleanFromServer(data)
+                  ? `<i class="fa-solid fa-check text-success"></i>`
+                  : `<i class="fa-solid fa-xmark text-danger"></i>`;
               }
             },
             {
-              data: 'user_entry',
+              data: 'fullname_entry',
               className: 'text-center'
             },
             {
@@ -632,11 +636,13 @@ const resetModalDetail = () => {
   $('#users_position').val(null).trigger('change');
   $('#users_plant').val(null).trigger('change');
   $('#users_golongan').val(null).trigger('change');
+  $('#users_section_corps').val(null).trigger('change');
+  $('#users_position_corps').val(null).trigger('change');
   status_active1.checked = false;
   status_active2.checked = false;
   users_role_utama.checked = false;
   checkDivCorps.checked = false;
-  checkDivCorps.disabled = false;
+  checkDivCorps.readOnly = false;
   changeModeForm(false);
 }
 const addModalDetail = async (e) => {
@@ -665,7 +671,7 @@ const editModalDetail = async (e) => {
   modalDetailTitle.innerHTML = 'Mengubah Peran Kerja';
 
   changeModeForm(data.status_users === 'corps');
-  checkDivCorps.disabled = true;
+  checkDivCorps.readOnly = true;
   if (data.status_users === 'corps') {
     checkDivCorps.checked = true;
     const optionSection = new Option(data.name_section, data.id_section, true, true);
@@ -762,8 +768,9 @@ const editModalDetail = async (e) => {
       }
     });
   }
-  data.status_active === 't' ? status_active2.checked = true : status_active1.checked = true;
-  users_role_utama.checked = data.role_utama === 't';
+
+  checkBooleanFromServer(data.status_active) ? status_active2.checked = true : status_active1.checked = true;
+  users_role_utama.checked = checkBooleanFromServer(data.role_utama);
 
   saveModalDetail = async (e) => {
     modalDetailBtnSave.disabled = true;
@@ -835,10 +842,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   checkDivCorps.addEventListener('change', (e) => {
+    if (e.target.readOnly) {
+      e.preventDefault();
+    }
     changeModeForm(e.target.checked);
-  })
+  });
+  checkDivCorps.addEventListener('click', (e) => {
+    if (e.target.readOnly) {
+      e.preventDefault();
+    }
+  });
 
-  if (accessModule.access_add === 't') {
+  if (checkBooleanFromServer(accessModule.access_add)) {
     dgUtama.btnAdd.addEventListener('click', async () => {
       await resetModalUtama();
       modalUtama._element.addEventListener('shown.bs.modal', addModalUtama);
@@ -854,7 +869,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dgDetail.btnAdd.disabled = true;
   }
 
-  if (accessModule.access_edit === 't') {
+  if (checkBooleanFromServer(accessModule.access_edit)) {
     dgUtama.btnEdit.addEventListener('click', async () => {
       const data = dgUtama.table.row( { selected: true } ).data();
       if (!IsEmpty(data)) {
@@ -908,7 +923,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dgUtama.btnResetPass.disabled = true;
   }
 
-  if (accessModule.access_delete === 't') {
+  if (checkBooleanFromServer(accessModule.access_delete)) {
     // dgUtama.btnDelete.addEventListener('click', async () => {
     //   const data = dgUtama.table.row( { selected: true } ).data();
     //   if (!IsEmpty(data.nik_users)) {
@@ -968,7 +983,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // dgDetail.btnDelete.disabled = true;
   }
 
-  if (accessModule.access_print === 't') {
+  if (checkBooleanFromServer(accessModule.access_print)) {
     // dgUtama.btnExcelDetail.addEventListener('click', async () => {});
     dgUtama.btnPDFDetail.addEventListener('click', async () => {});
   } else {

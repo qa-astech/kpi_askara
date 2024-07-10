@@ -1,4 +1,4 @@
-import { IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5 } from '../../../third-party/utility-yudhi/utils.js';
+import { IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5, checkBooleanFromServer } from '../../../third-party/utility-yudhi/utils.js';
 
 const showMenu = document.getElementById('showMenu');
 const alertComponent = new AlertElemBS5('alertComponent1');
@@ -42,7 +42,7 @@ const showMenuFun = async (e) => {
           elementCk += `
             <div class='text-center'>
               <p class='fst-italic mb-2'>${dataMaccess.name_maccess}</p>
-              <input type="checkbox" id="${dataMaccess.code_maccess}" class="chkbx-toggle" value="${dataMaccess.code_maccess}" ${dataMaccess.access_permission === 't' ? 'checked' : ''}>
+              <input type="checkbox" id="${dataMaccess.code_maccess}" class="chkbx-toggle" value="${dataMaccess.code_maccess}" ${checkBooleanFromServer(dataMaccess.access_permission) ? 'checked' : ''}>
               <label for="${dataMaccess.code_maccess}"></label>
             </div>
           `;

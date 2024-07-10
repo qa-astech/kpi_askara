@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 class company_detail extends database {
 
   public function __construct(){
@@ -45,8 +46,38 @@ class company_detail extends database {
     }
   }
 
+  public function getAllDepartmentFromCompany(){
+    try {
+      global $cleanWordPDO;
+      $cek_main = "SELECT distinct c.id_department, c.name_department
+      from company_detail a
+      inner join section_master b on b.id_section = a.id_section
+      inner join department_master c on c.id_department = b.id_department
+      where a.id_company = :idCompany
+      order by c.name_department";
+      $query_main = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_main, array(
+        ':idCompany' => $cleanWordPDO->textCk(@$_POST["id_company"], true)
+      ));
+      $items = $query_main->fetchAll();
+      return json_encode($items);
+    } catch (Exception $e) {
+      return json_encode(
+        array(
+          'response'=> 'error',
+          'alert'=> $e
+        )
+      );
+    }
+  }
+
   public function getDetailCompany(){
     global $cleanWord;
+    $_POST['columns'] = array_map(function($v) {
+      if ($v['data'] === 'fullname_entry') {
+        $v['data'] = 'fullname_users';
+      }
+      return $v;
+    }, $_POST['columns']);
     $id_company = $cleanWord->textCk(@$_POST["id_company"], true, 'normal');
     try {
       // View Column
@@ -57,13 +88,9 @@ class company_detail extends database {
         'name_position' => 'e',
         'name_plant' => 'd',
         'golongan' => 'a',
-        'user_entry' => 'a',
+        'fullname_users' => 'bb',
         'last_update' => 'a'
       );
-      // Total
-      $totalRecordsQuery = "SELECT COUNT(*) FROM company_detail";
-      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
-      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
       // Offset
       $start = $_POST['start'];
       // Limit
@@ -95,17 +122,32 @@ class company_detail extends database {
         $searchValue = $cleanWord->textCk($value['search']['value'], false, 'trim');
         $filtering .= !empty($searchValue) ? "and " . $viewColumn[$column] . ".$column::text ilike '%$searchValue%' " : "";
       }
-
-      $cek = "SELECT a.user_entry, a.last_update, a.id_det_company, a.golongan,
-      b.id_section, b.name_section,
-      c.id_department, c.name_department,
-      d.id_plant, d.name_plant,
-      e.id_position, e.name_position
+      // Total
+      $totalRecordsQuery = "SELECT COUNT(*)
       from company_detail a
       left join section_master b on b.id_section = a.id_section
       left join department_master c on c.id_department = b.id_department
       left join plant_master d on d.id_plant = a.id_plant
       left join position_master e on e.id_position = a.id_position
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
+      where a.id_company = {$id_company} $filtering $searching";
+      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
+      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
+
+      $cek = "SELECT a.user_entry, a.last_update, a.id_det_company, a.golongan,
+      b.id_section, b.name_section,
+      c.id_department, c.name_department,
+      d.id_plant, d.name_plant,
+      e.id_position, e.name_position,
+      bb.fullname_users fullname_entry, bb.nik_users nik_entry
+      from company_detail a
+      left join section_master b on b.id_section = a.id_section
+      left join department_master c on c.id_department = b.id_department
+      left join plant_master d on d.id_plant = a.id_plant
+      left join position_master e on e.id_position = a.id_position
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
       where a.id_company = {$id_company} $filtering $searching
       order by $ordering
       offset $start limit $length

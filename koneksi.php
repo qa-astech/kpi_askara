@@ -181,8 +181,6 @@ class database {
       die();
     }
 
-    // echo 'nanih';
-
     $prepareSQL = $koneksi->prepare($insert);
     if ($prepareSQL->execute($arrOfInsert)) {
       return $prepareSQL;

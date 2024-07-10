@@ -11,7 +11,7 @@ class kpi_bisnis_unit extends database {
   public function jsonTahun(){
     try {
       global $cleanWordPDO;
-      $q = $cleanWordPDO->textCk(@$_POST["q"], false, 'normal');
+      $q = $cleanWordPDO->textCk(@$_POST["q"], false);
       $page = isset($_POST['page']) && is_numeric($_POST['page']) ? $_POST['page'] : 1;
       $records_per_page = 10;
       $offset = ($page - 1) * $records_per_page;
@@ -45,11 +45,54 @@ class kpi_bisnis_unit extends database {
     }
   }
 
+  public function jsonCompany(){
+    try {
+      global $cleanWordPDO;
+      $year = $cleanWordPDO->textCk(@$_POST["year"], true);
+      $q = $cleanWordPDO->textCk(@$_POST["q"], false);
+      $page = isset($_POST['page']) && is_numeric($_POST['page']) ? $_POST['page'] : 1;
+      $records_per_page = 10;
+      $offset = ($page - 1) * $records_per_page;
+
+      $cek = "SELECT distinct compkpi_id as id, compkpi_name as text
+      from kpi_bisnis_unit
+      where year_kpibunit = :yearKpi
+      and compkpi_name::text ilike :search";
+      $cek_main = $cek . " order by compkpi_name asc offset :offset limit :recordsPerPage";
+      $query_main = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_main, array(
+        ':yearKpi' => $year,
+        ':search' => '%'.$q.'%',
+        ':offset' => $offset,
+        ':recordsPerPage' => $records_per_page
+      ));
+      $items = $query_main->fetchAll();
+
+
+      $cek_count = "SELECT count(*) from ($cek) tbl";
+      $query_count = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_count, array(
+        ':yearKpi' => $year,
+        ':search' => '%'.$q.'%'
+      ));
+      $total_count = $query_count->fetchAll();
+
+      $response = array(
+        "items" => $items,
+        "pagination" => array(
+          "more" => ($page * $records_per_page) < $total_count[0]['count']
+        )
+      );
+      return json_encode($response);
+    } catch (Exception $e) {
+      $response = array();
+      return json_encode($response);
+    }
+  }
+
   public function getKpiBisnisUnit(){
     global $cleanWordPDO;
     try {
-      $company_kpibunit = $cleanWordPDO->textCk(@$_POST["company_kpi"], true);
-      $year_kpibunit = $cleanWordPDO->numberCk(@$_POST["year_kpi"], true);
+      $company_kpibunit = $cleanWordPDO->textCk(@$_POST["company_kpi"], true, 'normal', null, "company_kpi");
+      $year_kpibunit = $cleanWordPDO->numberCk(@$_POST["year_kpi"], true, 'normal', null, "year_kpi");
 
       $cek = "SELECT distinct a.*,
       f.target_kpibunit baseline_1, STRING_TO_ARRAY(a.index_kpibunit, '.')::INT[] arr_index,

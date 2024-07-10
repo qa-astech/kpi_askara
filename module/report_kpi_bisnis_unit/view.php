@@ -9,7 +9,7 @@
   <?php
     require_once('../body_main_js.php');
   ?>
-  <h1 class="text-center fw-bold m-0 pb-4 pt-2">LAPORAN KPI BISNIS UNIT<span class="yearKPI"></span></h1>
+  <h1 class="text-center fw-bold m-0 pb-4 pt-2" id="h1Page">LAPORAN KPI BISNIS UNIT</span></h1>
 
   <div class="container-fluid px-3 pb-4">
     <div class="d-flex flex-wrap justify-content-between mb-3">

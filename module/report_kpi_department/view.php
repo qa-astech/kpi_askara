@@ -2,14 +2,14 @@
   require_once('../notes_form.php');
   require_once('../header_view.php');
 ?>
-  <title>LAPORAN KPI BISNIS UNIT</title>
+  <title>LAPORAN KPI DEPARTMENT</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <?php
     require_once('../body_main_js.php');
   ?>
-  <h1 class="text-center fw-bold m-0 pb-4 pt-2">LAPORAN KPI BISNIS UNIT<span class="yearKPI"></span></h1>
+  <h1 class="text-center fw-bold m-0 pb-4 pt-2" id="h1Page">LAPORAN KPI DEPARTMENT</h1>
 
   <div class="container-fluid px-3 pb-4">
     <div class="d-flex flex-wrap justify-content-between mb-3">
@@ -18,7 +18,9 @@
           <tbody>
             <tr>
               <td class="pe-3"><label for="dgUtamaYearInput" class="form-label mb-0 fs-5">Tahun <span class="fw-bold text-danger">*</span></label></td>
-              <td class="pe-3"><input type="number" class="form-control form-control-sm" id="dgUtamaYearInput" placeholder="Tahun KPI..." aria-label="dgUtamaYearInput" aria-describedby="dgUtamaYearInput" style="width: 200px;"></td>
+              <td class="pe-3">
+                <select class="form-select form-select-sm" name="dgUtamaYearInput" id="dgUtamaYearInput" data-placeholder="Masukan Tahun..." style="width: 200px;"></select>
+              </td>
               <td></td>
             </tr>
             <tr>
@@ -71,19 +73,19 @@
       <table id="dgLaporan" class="table table-hover table-striped table-bordered w-100 nowrap table-nowrap">
         <thead class="table-dark">
           <tr>
-            <th class="align-middle text-center" rowspan="2">Perspektif</th>
-            <th class="align-middle text-center" rowspan="2">Strategi Objektif</th>
-            <th class="align-middle text-center" rowspan="2">Layout KPI</th>
-            <th class="align-middle text-center" rowspan="2">Definisi KPI</th>
-            <th class="align-middle text-center" rowspan="2">Control Cek</th>
-            <th class="align-middle text-center" rowspan="2">UOM</th>
-            <th class="align-middle text-center" rowspan="2">Formula</th>
-            <th class="align-middle text-center" rowspan="2">Polaritas</th>
-            <th class="align-middle text-center" rowspan="2">Baseline<span id="dgUtamaYear1"></span></th>
-            <th class="align-middle text-center" rowspan="2">Target<br>Tahun<span class="yearKPI"></span></th>
-            <th class="align-middle text-center" colspan="24">Realisasi Bulanan</th>
-            <th class="align-middle text-center" rowspan="2">Total Realisasi</th>
-            <th class="align-middle text-center" rowspan="2">Pencapaian<br>Keseluruhan</th>
+            <th class="align-middle text-center" rowspan="3">Perspektif</th>
+            <th class="align-middle text-center" rowspan="3">Strategi Objektif</th>
+            <th class="align-middle text-center" rowspan="3">Layout KPI</th>
+            <th class="align-middle text-center" rowspan="3">Definisi KPI</th>
+            <th class="align-middle text-center" rowspan="3">Control Cek</th>
+            <th class="align-middle text-center" rowspan="3">UOM</th>
+            <th class="align-middle text-center" rowspan="3">Formula</th>
+            <th class="align-middle text-center" rowspan="3">Polaritas</th>
+            <th class="align-middle text-center" rowspan="3">Baseline<span id="dgUtamaYear1"></span></th>
+            <th class="align-middle text-center" rowspan="3">Target Tahun<span id="yearKPI"></span></th>
+            <th class="align-middle text-center" colspan="36">Realisasi Bulanan</th>
+            <th class="align-middle text-center" rowspan="3">Total Realisasi</th>
+            <th class="align-middle text-center" rowspan="3">Pencapaian<br>Keseluruhan</th>
           </tr>
           <tr id="trUpperLaporan">
           </tr>

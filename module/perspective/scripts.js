@@ -1,4 +1,4 @@
-import { IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5 } from '../../../third-party/utility-yudhi/utils.js';
+import { IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5, checkBooleanFromServer } from '../../../third-party/utility-yudhi/utils.js';
 $.fn.dataTable.ext.errMode = 'none';
 
 const btnElemDgUtama = `
@@ -62,7 +62,7 @@ class DgUtama {
             { data: 'index_perspective' },
             { data: 'alias_perspective' },
             {
-              data: 'user_entry',
+              data: 'fullname_entry',
               className: 'text-center'
             },
             {
@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dgUtama.table.ajax.reload();
   });
 
-  if (accessModule.access_add === 't') {
+  if (checkBooleanFromServer(accessModule.access_add)) {
     dgUtama.btnAdd.addEventListener('click', async () => {
       await resetModalUtama();
       modalUtama._element.addEventListener('shown.bs.modal', addModalUtama);
@@ -232,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dgUtama.btnAdd.disabled = true;
   }
 
-  if (accessModule.access_edit === 't') {
+  if (checkBooleanFromServer(accessModule.access_edit)) {
     dgUtama.btnEdit.addEventListener('click', async () => {
       const data = dgUtama.table.row( { selected: true } ).data();
       if (!IsEmpty(data)) {
@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dgUtama.btnEdit.disabled = true;
   }
 
-  if (accessModule.access_delete === 't') {
+  if (checkBooleanFromServer(accessModule.access_delete)) {
     dgUtama.btnDelete.addEventListener('click', async () => {
       const data = dgUtama.table.row( { selected: true } ).data();
       if (!IsEmpty(data.id_perspective)) {
@@ -279,7 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dgUtama.btnDelete.disabled = true;
   }
 
-  if (accessModule.access_print === 't') {
+  if (checkBooleanFromServer(accessModule.access_print)) {
     // dgUtama.btnExcelDetail.addEventListener('click', async () => {});
     dgUtama.btnPDFDetail.addEventListener('click', async () => {});
   } else {

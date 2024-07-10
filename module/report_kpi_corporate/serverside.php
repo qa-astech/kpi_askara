@@ -107,9 +107,10 @@ class kpi_corporate extends database {
         $main_data[$key]['year'] = array_filter($data_year, function($filterVal) use ($value) {
           return $filterVal['id_kpicorp'] === $value['id_kpicorp'];
         });
-        $main_data[$key]['totalRealisasi'] = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
+        $arrayTotalRealisasi = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
           return $filterVal['id_kpicorp'] === $value['id_kpicorp'];
-        }), 'total_realisasi')[0];
+        }), 'total_realisasi');
+        $main_data[$key]['totalRealisasi'] = $arrayTotalRealisasi[0] ?? null;
       }
       return json_encode($main_data);
 
@@ -122,7 +123,7 @@ class kpi_corporate extends database {
   public function jsonTahun(){
     try {
       global $cleanWordPDO;
-      $q = $cleanWordPDO->textCk(@$_POST["q"], false, 'normal');
+      $q = $cleanWordPDO->textCk(@$_POST["q"], false);
       $page = isset($_POST['page']) && is_numeric($_POST['page']) ? $_POST['page'] : 1;
       $records_per_page = 10;
       $offset = ($page - 1) * $records_per_page;

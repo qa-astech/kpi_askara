@@ -40,6 +40,12 @@ class perspective extends database {
 
   public function getPerspective(){
     global $cleanWord;
+    $_POST['columns'] = array_map(function($v) {
+      if ($v['data'] === 'fullname_entry') {
+        $v['data'] = 'fullname_users';
+      }
+      return $v;
+    }, $_POST['columns']);
     try {
       // View Column
       $viewColumn = array(
@@ -47,13 +53,9 @@ class perspective extends database {
         'name_perspective' => 'a',
         'index_perspective' => 'a',
         'alias_perspective' => 'a',
-        'user_entry' => 'a',
+        'fullname_users' => 'bb',
         'last_update' => 'a'
       );
-      // Total
-      $totalRecordsQuery = "SELECT COUNT(*) FROM perspective";
-      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
-      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
       // Offset
       $start = $_POST['start'];
       // Limit
@@ -85,6 +87,14 @@ class perspective extends database {
         $searchValue = $cleanWord->textCk($value['search']['value'], false, 'trim');
         $filtering .= !empty($searchValue) ? "and " . $viewColumn[$column] . ".$column::text ilike '%$searchValue%' " : "";
       }
+      // Total
+      $totalRecordsQuery = "SELECT COUNT(*)
+      from perspective a
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
+      where a.last_update is not null $filtering $searching";
+      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
+      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
 
       $cek = "SELECT a.*, bb.fullname_users fullname_entry, bb.nik_users nik_entry
       from perspective a

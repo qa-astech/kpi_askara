@@ -1,6 +1,7 @@
 import {
   IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5,
-  parseVersion, compareVersions, childVersion, number_format, number_format_big, monthAcro, sendViaFetchNotForm
+  parseVersion, compareVersions, childVersion, number_format, number_format_big, monthAcro, sendViaFetchNotForm,
+  checkBooleanFromServer
 } from '../../../third-party/utility-yudhi/utils.js';
 
 $.fn.dataTable.ext.errMode = 'none';
@@ -379,13 +380,13 @@ const insertTdEditor = async (jsonData) => {
           target_kpibunit.disabled = objectData.cascade_kpibunit === 'full-round';
           disableInput();
         } else {
-          if (objectData.terbit_kpibunit === 't') {
+          if (checkBooleanFromServer(objectData.terbit_kpibunit)) {
             target_kpibunit.disabled = true;
             disableInput();
           }
         }
 
-        if (objectData.terbit_kpibunit === 't') {
+        if (checkBooleanFromServer(objectData.terbit_kpibunit)) {
           index_kpibunit.disabled = true;
           cascade_elem.forEach(elemCascade => {
             elemCascade.disabled = true;
@@ -426,8 +427,8 @@ const funViewKPIYear = async () => {
       dgUtamaYear1.innerText = yearProgress - 1;
       btnEditDgUtama.removeEventListener('click', funBtnEditDgUtama);
       btnPublishDgUtama.removeEventListener('click', funBtnPublishDgUtama);
-      // // btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
-      // // btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
+      // btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
+      // btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
       btnReloadDgUtama.removeEventListener('click', funBtnReloadDgUtama);
       btnEditDgUtama.disabled = false;
       btnPublishDgUtama.disabled = false;
@@ -488,7 +489,7 @@ const funViewKPIYear = async () => {
           </td>
           <td class="text-center">${objectData.data_avail_name_department ?? ''}</td>
           <td class="text-center">${objectData.data_avail_fullname_users ?? ''}</td>
-          <td class="text-center ${objectData.terbit_kpibunit === 't' ? 'text-success' : 'text-danger'} fw-bold">${objectData.terbit_kpibunit === 't' ? 'Sudah Terbit' : 'Belum Terbit'}</td>
+          <td class="text-center ${checkBooleanFromServer(objectData.terbit_kpibunit) ? 'text-success' : 'text-danger'} fw-bold">${checkBooleanFromServer(objectData.terbit_kpibunit) ? 'Sudah Terbit' : 'Belum Terbit'}</td>
         `;
         elemTr.innerHTML = elemTd;
         dgUtamaTbody.append(elemTr);
@@ -535,10 +536,10 @@ const funViewKPIYear = async () => {
       btnEditDgUtama.addEventListener('click', funBtnEditDgUtama);
   
       // funBtnExcelDetailDgUtama = async (e) => {}
-      // // btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
+      // btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
   
       // funBtnPDFDetailDgUtama = async (e) => {}
-      // // btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
+      // btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
   
       funBtnPublishDgUtama = async (e) => {
         confirmComponent.setupconfirm('Terbit KPI', 'bg-primary', 'text-white', 'Anda yakin ingin terbitkan KPI ini sekarang?');
@@ -730,10 +731,8 @@ const addFunSelectEditor = async (index) => {
     const value = input.value.trim().replace(/,/g, "");
     const numericDotRegex = /^[0-9.]*$/;
     const realValue = number_format_big(value, 2, '.', ',');
-    if (IsEmpty(value) && parseInt(value) !== 0) {
+    if (IsEmpty(value, true, true)) {
       input.value = null;
-    } else if (parseInt(value) === 0) {
-      input.value = 0;
     } else if (!numericDotRegex.test(value)) {
       input.value = stateTargetInput[index];
     } else {

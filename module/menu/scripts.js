@@ -1,4 +1,4 @@
-import { AlertElemBS5, ConfirmElemBS5, IsEmpty, resetInputExceptChoice, sendViaFetchForm } from '../../../third-party/utility-yudhi/utils.js';
+import { AlertElemBS5, ConfirmElemBS5, IsEmpty, checkBooleanFromServer, resetInputExceptChoice, sendViaFetchForm } from '../../../third-party/utility-yudhi/utils.js';
 $.fn.dataTable.ext.errMode = 'none';
 
 const btnElemDgUtama = `
@@ -493,7 +493,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     modalDetailBackdrop.classList.add('d-none');
   });
 
-  if (accessModule.access_add === 't') {
+  if (checkBooleanFromServer(accessModule.access_add)) {
     dgUtama.btnAdd.addEventListener('click', async () => {
       await resetModalUtama();
       modalUtama._element.addEventListener('shown.bs.modal', addModalUtama);
@@ -509,7 +509,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     dgDetail.btnAdd.disabled = true;
   }
 
-  if (accessModule.access_edit === 't') {
+  if (checkBooleanFromServer(accessModule.access_edit)) {
     dgUtama.btnEdit.addEventListener('click', async () => {
       const data = dgUtama.table.row( { selected: true } ).data();
       if (!IsEmpty(data)) {
@@ -535,7 +535,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     dgDetail.btnEdit.disabled = true;
   }
 
-  if (accessModule.access_delete === 't') {
+  if (checkBooleanFromServer(accessModule.access_delete)) {
     dgUtama.btnDelete.addEventListener('click', async () => {
       const data = dgUtama.table.row( { selected: true } ).data();
       if (!IsEmpty(data.code_menu)) {
@@ -595,7 +595,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     dgDetail.btnDelete.disabled = true;
   }
 
-  if (accessModule.access_print === 't') {
+  if (checkBooleanFromServer(accessModule.access_print)) {
   } else {
   }
 

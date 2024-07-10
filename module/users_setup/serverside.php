@@ -86,8 +86,17 @@ class users_setup extends database {
   }
 
   public function getUsersSetup(){
-    global $cleanWord;
-    $nik_users = $cleanWord->textCk(@$_POST["nik_users"], true, 'normal');
+    global $cleanWordPDO;
+    $_POST['columns'] = array_map(function($v) {
+      if ($v['data'] === 'fullname_entry') {
+        $v['data'] = 'fullname_users';
+      }
+      return $v;
+    }, $_POST['columns']);
+    $nik_users = $cleanWordPDO->textCk(@$_POST["nik_users"], true, 'normal', null, "nik_users");
+    $sendVar = array(
+      ':nikUsers' => $nik_users,
+    );
     try {
       // View Column
       $viewColumn = array(
@@ -100,24 +109,23 @@ class users_setup extends database {
         'golongan' => 'a',
         'status_active' => 'a',
         'role_utama' => 'a',
-        'user_entry' => 'a',
+        'fullname_users' => 'bb',
         'last_update' => 'a'
       );
-      // Total
-      $totalRecordsQuery = "SELECT COUNT(*) FROM users";
-      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
-      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
       // Offset
       $start = $_POST['start'];
       // Limit
       $length = $_POST['length'];
       // Search Box
-      $searchValueBox = $cleanWord->textCk(@$_POST['search']['value'], false, 'trim');
+      $searchValueBox = $cleanWordPDO->textCk(@$_POST['search']['value'], false);
       $searching = '';
       if (!empty($searchValueBox)) {
         foreach ($_POST['columns'] as $key => $value) {
           $column = $value['data'];
-          $searching .= !empty($column) ? $viewColumn[$column] . ".$column::text ilike '%$searchValueBox%' or " : "";
+          if (!empty($column)) {
+            $searching .= $viewColumn[$column] . ".$column::text ilike :$column" . "_search or ";
+            $sendVar = array_merge($sendVar, [":$column" . "_search" => '%'.$searchValueBox.'%']);
+          }
         }
         $valueOfSearch = rtrim($searching, ' or ');
         $searching = !empty($valueOfSearch) ? "and ($valueOfSearch)" : "";
@@ -135,17 +143,33 @@ class users_setup extends database {
       $filtering = '';
       foreach ($_POST['columns'] as $key => $value) {
         $column = $value['data'];
-        $searchValue = $cleanWord->textCk($value['search']['value'], false, 'trim');
-        $filtering .= !empty($searchValue) ? "and " . $viewColumn[$column] . ".$column::text ilike '%$searchValue%' " : "";
+        $searchValue = $cleanWordPDO->textCk($value['search']['value'], false);
+        if (!empty($searchValue)) {
+          $filtering .= "and " . $viewColumn[$column] . ".$column::text ilike :$column" . "_filter ";
+          $sendVar = array_merge($sendVar, [":$column" . "_filter" => '%'.$searchValue.'%']);
+        }
       }
+      // Total
+      $totalRecordsQuery = "SELECT COUNT(*)
+      from all_users_setup a
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
+      where a.nik = :nikUsers $filtering $searching";
+      $totalRecordsResult = $this->sendQueryPDO($this->konek_kpi_pdo(), $totalRecordsQuery, $sendVar);
+      // $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
+      // $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
+      $totalRecords = $totalRecordsResult->fetchColumn(0);
 
-      $cek = "SELECT a.* from all_users_setup a
-      where a.nik = {$nik_users} $filtering $searching
+      $cek = "SELECT a.*, bb.fullname_users fullname_entry, bb.nik_users nik_entry
+      from all_users_setup a
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
+      where a.nik = :nikUsers $filtering $searching
       order by $ordering
       offset $start limit $length
       ";
-      $query = $this->sendQuery($this->konek_sita_db(), $cek);
-      $items = empty(pg_fetch_all($query)) ? array() : pg_fetch_all($query);
+      $query = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek, $sendVar);
+      $items = $query->fetchAll();
       $response = array(
         'draw' => $_POST['draw'],
         'recordsTotal' => $totalRecords,
@@ -252,37 +276,54 @@ class users_setup extends database {
   }
 
   public function editUsersSetup(){
-    global $cleanWord;
+    global $cleanWordPDO;
 
-    $id_usersetup = $cleanWord->textCk(@$_POST["id_usersetup"], true, 'normal');
-    $nik = $cleanWord->textCk(@$_POST["nik"], true, 'normal');
-    $status_active = $cleanWord->textCk(@$_POST["status_active"], true, 'trim');
+    $id_usersetup = $cleanWordPDO->textCk(@$_POST["id_usersetup"], true, 'normal', null, "id_usersetup");
+    $nik = $cleanWordPDO->textCk(@$_POST["nik"], true, 'normal', null, "nik");
+    $status_active = $cleanWordPDO->textCk(@$_POST["status_active"], true, 'normal', null, "status_active");
     $users_role_utama = !empty($_POST["users_role_utama"]) ? 'true' : 'false';
-    $checkDivCorps = !empty($_POST["checkDivCorps"]) == 'true' ? false : true;
-    $sql = "";
+    $checkDivCorps = !empty($_POST["checkDivCorps"]) && $_POST["checkDivCorps"] === 'true' ? false : true;
+    $beginConnect = $this->konek_kpi_pdo();
+    $beginConnect->beginTransaction();
 
     if ($users_role_utama == 'true') {
-      $sql .= "UPDATE users_setup SET role_utama = false where id_usersetup != {$id_usersetup} and nik = {$nik};
-      UPDATE users_setup_corps SET role_utama = false where id_usersetup != {$id_usersetup} and nik = {$nik};";
+      $sql_update = "UPDATE users_setup SET role_utama = false where id_usersetup != :idUsersetup and nik = :nik;";
+      $this->sendQueryPDO($beginConnect, $sql_update, array(
+        ':nik' => $nik,
+        ':idUsersetup' => $id_usersetup
+      ));
+      $sql_update = "UPDATE users_setup_corps SET role_utama = false where id_usersetup != :idUsersetup and nik = :nik;";
+      $this->sendQueryPDO($beginConnect, $sql_update, array(
+        ':nik' => $nik,
+        ':idUsersetup' => $id_usersetup
+      ));
     }
+    $sql = "";
+    $sendVar = array();
 
     try {
       if ($checkDivCorps) {
-        $users_company = $cleanWord->textCk(@$_POST["users_company"], true, 'normal');
-        $users_section = $cleanWord->textCk(@$_POST["users_section"], true, 'normal');
-        $users_position = $cleanWord->textCk(@$_POST["users_position"], true, 'normal');
-        $users_plant = $cleanWord->textCk(@$_POST["users_plant"], true, 'normal');
-        $users_golongan = $cleanWord->textCk(@$_POST["users_golongan"], true, 'normal');
+        $users_company = $cleanWordPDO->textCk(@$_POST["users_company"], true, 'normal', null, "users_company");
+        $users_section = $cleanWordPDO->textCk(@$_POST["users_section"], true, 'normal', null, "users_section");
+        $users_position = $cleanWordPDO->textCk(@$_POST["users_position"], true, 'normal', null, "users_position");
+        $users_plant = $cleanWordPDO->textCk(@$_POST["users_plant"], true, 'normal', null, "users_plant");
+        $users_golongan = $cleanWordPDO->textCk(@$_POST["users_golongan"], true, 'normal', null, "users_golongan");
     
         $cek_detail_company = "SELECT id_det_company from company_detail
-        where id_company = {$users_company}
-        and id_position = {$users_position}
-        and id_section = {$users_section}
-        and id_plant = {$users_plant}
-        and golongan = $users_golongan
+        where id_company = :usersCompany
+        and id_position = :usersPosition
+        and id_section = :usersSection
+        and id_plant = :usersPlant
+        and golongan = :usersGolongan
         ";
-        $query_detail_company = $this->sendQuery($this->konek_sita_db(), $cek_detail_company);
-        $items_detail_company = pg_fetch_all($query_detail_company);
+        $query_detail_company = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_detail_company, array(
+          ':usersCompany' => $users_company,
+          ':usersPosition' => $users_position,
+          ':usersSection' => $users_section,
+          ':usersPlant' => $users_plant,
+          ':usersGolongan' => $users_golongan
+        ));
+        $items_detail_company = $query_detail_company->fetchAll();
         if (empty($items_detail_company)) {
           return json_encode(
             array(
@@ -292,19 +333,27 @@ class users_setup extends database {
           );
         }
         $sql .= "UPDATE users_setup SET
-        id_det_company = '".$items_detail_company[0]['id_det_company']."',
-        status_active = $status_active,
-        role_utama = $users_role_utama,
-        user_entry = '$_SESSION[setupuser_kpi_askara]',
-        last_update = '".$this->last_update."',
+        id_det_company = :idDetailCompany,
+        status_active = :statusActive,
+        role_utama = :roleUtama,
+        user_entry = :userEntry,
+        last_update = :lastUpdate,
         flag = 'u'
-        WHERE id_usersetup = {$id_usersetup};
+        WHERE id_usersetup = :idUsersetup;
         ";
+        $sendVar = array_merge($sendVar, [
+          ':idDetailCompany' => $items_detail_company[0]['id_det_company'],
+          ':statusActive' => $status_active,
+          ':roleUtama' => $users_role_utama,
+          ':userEntry' => $_SESSION['setupuser_kpi_askara'],
+          ':lastUpdate' => $this->last_update,
+          ':idUsersetup' => $id_usersetup
+        ]);
 
       } else {
-        $users_position_corps = $cleanWord->textCk(@$_POST["users_position_corps"], true, 'normal');
-        $users_section_corps = $cleanWord->textCk(@$_POST["users_section_corps"], true, 'normal');
-        $users_golongan_corps = $cleanWord->numberCk(@$_POST["users_golongan_corps"], true, 'integer');
+        $users_position_corps = $cleanWordPDO->textCk(@$_POST["users_position_corps"], true, 'normal', "users_position_corps");
+        $users_section_corps = $cleanWordPDO->textCk(@$_POST["users_section_corps"], true, 'normal', "users_section_corps");
+        $users_golongan_corps = $cleanWordPDO->numberCk(@$_POST["users_golongan_corps"], true, 'normal', "users_golongan_corps");
 
         if ($users_golongan_corps > 5 || $users_golongan_corps < 1) {
           return json_encode(
@@ -316,19 +365,31 @@ class users_setup extends database {
         }
 
         $sql .= "UPDATE users_setup_corps SET
-        id_position = {$users_position_corps},
-        id_section = {$users_section_corps},
-        golongan = $users_golongan_corps,
-        status_active = $status_active,
-        role_utama = $users_role_utama,
-        user_entry = '$_SESSION[setupuser_kpi_askara]',
-        last_update = '".$this->last_update."',
+        id_position = :idPosition,
+        id_section = :idSection,
+        golongan = :golongan,
+        status_active = :statusActive,
+        role_utama = :roleUtama,
+        user_entry = :userEntry,
+        last_update = :lastUpdate,
         flag = 'u'
-        WHERE id_usersetup = {$id_usersetup};
+        WHERE id_usersetup = :idUsersetup;
         ";
+        $sendVar = array_merge($sendVar, [
+          ':idPosition' => $users_position_corps,
+          ':idSection' => $users_section_corps,
+          ':golongan' => $users_golongan_corps,
+          ':statusActive' => $status_active,
+          ':roleUtama' => $users_role_utama,
+          ':userEntry' => $_SESSION['setupuser_kpi_askara'],
+          ':lastUpdate' => $this->last_update,
+          ':idUsersetup' => $id_usersetup
+        ]);
+
       }
 
-      $this->sendQuery($this->konek_sita_db(), $sql);
+      $this->sendQueryPDO($beginConnect, $sql, $sendVar);
+      $beginConnect->commit();
       return json_encode(
         array(
           'response'=>'success',
@@ -337,6 +398,7 @@ class users_setup extends database {
       );
 
     } catch (Exception $e) {
+      $beginConnect->rollBack();
       return json_encode(
         array(
           'response'=>'error',

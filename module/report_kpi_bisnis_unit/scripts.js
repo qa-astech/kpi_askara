@@ -15,6 +15,7 @@ const dgUtamaCompanyInput = document.getElementById('dgUtamaCompanyInput');
 const dgUtamaYearBtn = document.getElementById('dgUtamaYearBtn');
 const dgUtamaUserEntry = document.getElementById('dgUtamaUserEntry');
 const dgUtamaLastUpdate = document.getElementById('dgUtamaLastUpdate');
+const h1Page = document.getElementById('h1Page');
 
 // Button Laporan
 const btnLaporanTahunan = document.getElementById('btnLaporanTahunan');
@@ -37,6 +38,10 @@ let yearProgress;
 let bisnisUnitProgress;
 let getDataDepartment;
 
+const clearSelectCompany = (e) => {
+  $(dgUtamaCompanyInput).val(null).trigger('change');
+}
+
 const getKpiNow = async () => {
   return new Promise(async (resolve) => {
     if (yearProgress && bisnisUnitProgress) {
@@ -51,7 +56,42 @@ const getKpiNow = async () => {
   });
 }
 
-const funViewKPIYear = async () => {
+const showAvailableDepartmentKpi = async () => {
+  const sendDataBisnis = new FormData();
+  sendDataBisnis.append('id_company', bisnisUnitProgress);
+  getDataDepartment = await sendViaFetchForm('../detail_company/route.php?act=getAllDepartmentFromCompany', sendDataBisnis);
+  if (getDataDepartment.response === 'error') {
+    alertComponent.sendAnAlertOnCatch(getDataDepartment.alert);
+    throw new Error(`Data department gak keambil nih!!`);
+  } else {
+    const elementTahunan = document.querySelectorAll('.created-month');
+    if (elementTahunan.length > 0) {
+      elementTahunan.forEach(element => {
+        element.remove();
+      });
+    }
+    let extraUpperTahunan = trUpperTahunan.innerHTML.trim();
+    let extraBottomTahunan = trBottomTahunan.innerHTML.trim();
+    for (const department of getDataDepartment) {
+      extraUpperTahunan += `
+        <th class="align-middle text-center created-month" colspan='3'>${department.name_department}</th>
+      `;
+      extraBottomTahunan += `
+        <th class="align-middle text-center created-month">Target</th>
+        <th class="align-middle text-center created-month">Realisasi</th>
+        <th class="align-middle text-center created-month">Pencapaian</th>
+      `;
+    }
+    extraUpperTahunan += `
+        <th class="align-middle text-center" rowspan="2">Total Realisasi</th>
+        <th class="align-middle text-center" rowspan="2">Pencapaian<br>Keseluruhan</th>
+    `;
+    trBottomTahunan.innerHTML = extraBottomTahunan.trim();
+    trUpperTahunan.innerHTML = extraUpperTahunan.trim();
+  }
+}
+
+const funViewDataKpi = async () => {
   
   await getKpiNow()
   .then(jsonData => {
@@ -105,9 +145,9 @@ const funViewKPIYear = async () => {
           const targetBisnis = currentData && currentData.length > 0 ? currentData[0].target_department : null;
           const realisasi = currentData && currentData.length > 0 ? currentData[0].realisasi : null;
           elemTdTahunan += `
-            <td class="align-middle text-end created-js">${targetBisnis ? number_format_big(targetBisnis, 2, '.', ',') : ''}</td>
-            <td class="align-middle text-end created-js">${realisasi ? number_format_big(realisasi, 2, '.', ',') : ''}</td>
-            <td class="align-middle text-end created-js"></td>
+            <td class="align-middle text-end">${targetBisnis ? number_format_big(targetBisnis, 2, '.', ',') : ''}</td>
+            <td class="align-middle text-end">${realisasi ? number_format_big(realisasi, 2, '.', ',') : ''}</td>
+            <td class="align-middle text-end"></td>
           `;
         }
         elemTdTahunan += `
@@ -156,6 +196,7 @@ const funViewKPIYear = async () => {
     } else {
       btnMenuPrintDgBulanan.disabled = true;
       btnLaporanTahunan.disabled = true;
+      throw new Error(`Data kpi gak keambil nih!!`);
     }
 
   })
@@ -175,106 +216,90 @@ document.addEventListener("DOMContentLoaded", async () => {
   btnLaporanTahunan.disabled = true;
   dgUtamaYearInput.value = null;
   dgUtamaCompanyInput.value = null;
+  dgUtamaYearInput.disabled = false;
+  dgUtamaCompanyInput.disabled = false;
+  dgUtamaYearBtn.disabled = false;
 
-  const sendDataBisnis = new FormData();
-  getDataDepartment = await sendViaFetchForm('../master_department/route.php?act=getAllDepartment', sendDataBisnis);
-  if (getDataDepartment.response === 'error') {
-    alertComponent.sendAnAlertOnCatch(getDataDepartment.alert);
-  } else {
-
-    dgUtamaYearInput.disabled = false;
-    dgUtamaCompanyInput.disabled = false;
-    dgUtamaYearBtn.disabled = false;
-  
-    $(`#dgUtamaYearInput`).select2({
-      theme: "bootstrap-5",
-      width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
-      placeholder: $( this ).data( 'placeholder' ),
-      allowClear: true,
-      ajax: {
-        url: "route.php?act=jsonTahun",
-        dataType: 'json',
-        method: 'POST',
-        delay: 250,
-        data: function (params) {
-          return {
-            q: params.term,
-            page: params.page || 1
-          };
-        },
-        processResults: function (data) {
-          return {
-            results: data.items,
-            pagination: {
-              more: data.pagination.more
-            }
-          };
-        },
-        cache: true
+  $(dgUtamaYearInput).select2({
+    theme: "bootstrap-5",
+    width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+    placeholder: $( this ).data( 'placeholder' ),
+    allowClear: true,
+    ajax: {
+      url: "route.php?act=jsonTahun",
+      dataType: 'json',
+      method: 'POST',
+      delay: 250,
+      data: function (params) {
+        return {
+          q: params.term,
+          page: params.page || 1
+        };
       },
-    });
-
-    $(`#dgUtamaCompanyInput`).select2({
-      theme: "bootstrap-5",
-      width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
-      placeholder: $( this ).data( 'placeholder' ),
-      allowClear: true,
-      ajax: {
-        url: "../master_company/route.php?act=jsonCompany",
-        dataType: 'json',
-        method: 'POST',
-        delay: 250,
-        data: function (params) {
-          return {
-            q: params.term,
-            page: params.page || 1
-          };
-        },
-        processResults: function (data) {
-          return {
-            results: data.results,
-            pagination: {
-              more: data.pagination.more
-            }
-          };
-        },
-        cache: true
+      processResults: function (data) {
+        return {
+          results: data.items,
+          pagination: {
+            more: data.pagination.more
+          }
+        };
       },
-    });
-  
-    dgUtamaYearBtn.addEventListener('click', async (e) => {
+      cache: true
+    },
+  });'Terjadi kesalahan! ❌'
+  $(dgUtamaYearInput).on('select2:select', clearSelectCompany);
+
+  $(dgUtamaCompanyInput).select2({
+    theme: "bootstrap-5",
+    width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+    placeholder: $( this ).data( 'placeholder' ),
+    allowClear: true,
+    ajax: {
+      url: "route.php?act=jsonCompany",
+      dataType: 'json',
+      method: 'POST',
+      delay: 250,
+      data: function (params) {
+        return {
+          q: params.term,
+          page: params.page || 1,
+          year: dgUtamaYearInput.value
+        };
+      },
+      processResults: function (data) {
+        return {
+          results: data.items,
+          pagination: {
+            more: data.pagination.more
+          }
+        };
+      },
+      cache: true
+    },
+  });
+
+  dgUtamaYearBtn.addEventListener('click', async (e) => {
+    try {
       yearProgress = dgUtamaYearInput.value;
       bisnisUnitProgress = dgUtamaCompanyInput.value;
-      await funViewKPIYear();
-    });
-      
-    let extraUpperBulanan = '';
-    for (const month of monthAcro) {
-      extraUpperBulanan += `
-        <th class="align-middle text-center created-js">${month.full}</th>
-      `;
+      const [getBisnisUnitObj] = $(dgUtamaCompanyInput).select2('data');
+      const nameCompany = getBisnisUnitObj.text;
+      h1Page.innerHTML = `LAPORAN KPI BISNIS UNIT<br>${nameCompany.toUpperCase()}`;
+      await showAvailableDepartmentKpi();
+      await funViewDataKpi();
+    } catch (error) {
+      console.error('Error Caught : ', error.message)
     }
-    trUpperBulanan.innerHTML = extraUpperBulanan.trim();
-  
-    let extraUpperTahunan = trUpperTahunan.innerHTML.trim();
-    let extraBottomTahunan = trBottomTahunan.innerHTML.trim();
-    for (const department of getDataDepartment) {
-      extraUpperTahunan += `
-        <th class="align-middle text-center created-js" colspan='3'>${department.name_department}</th>
-      `;
-      extraBottomTahunan += `
-        <th class="align-middle text-center created-js">Target</th>
-        <th class="align-middle text-center created-js">Realisasi</th>
-        <th class="align-middle text-center created-js">Pencapaian</th>
-      `;
-    }
-    extraUpperTahunan += `
-        <th class="align-middle text-center" rowspan="2">Total Realisasi</th>
-        <th class="align-middle text-center" rowspan="2">Pencapaian<br>Keseluruhan</th>
+  });
+    
+  let extraUpperBulanan = '';
+  for (const month of monthAcro) {
+    extraUpperBulanan += `
+      <th class="align-middle text-center created-month">${month.full}</th>
     `;
-    trBottomTahunan.innerHTML = extraBottomTahunan.trim();
-    trUpperTahunan.innerHTML = extraUpperTahunan.trim();
   }
+  trUpperBulanan.innerHTML = extraUpperBulanan.trim();
 
+  h1Page.innerHTML = `LAPORAN KPI BISNIS UNIT`;
 
 });

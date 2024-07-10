@@ -194,54 +194,50 @@
 	        </button>
 	      </div>
 	      <div class="modal-body">
-          <div class="container-fluid">
-            <table class="table table-borderless w-100 nowrap table-information">
-              <tbody>
-                <tr>
-                  <th>NIK</th>
-                  <th class="px-1">:</th>
-                  <td id="modalDetailViewNik"></td>
-                </tr>
-                <tr>
-                  <th>Nama Lengkap</th>
-                  <th class="px-1">:</th>
-                  <td id="modalDetailViewFullname"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="container-fluid">
-            <table id="dgDetail" class="table table-hover table-striped table-bordered w-100 nowrap">
-              <thead class="table-dark">
-                <tr id="dgDetailFilter">
-                  <th class="filterTable">Kode Detail</th>
-                  <th class="filterTable">Perusahaan</th>
-                  <th class="filterTable">Departemen</th>
-                  <th class="filterTable">Divisi</th>
-                  <th class="filterTable">Posisi</th>
-                  <th class="filterTable">Plan</th>
-                  <th class="filterTable">Golongan</th>
-                  <th>Status Aktif</th>
-                  <th>Peran Kerja Utama</th>
-                  <th class="filterTable">Pengguna Terakhir</th>
-                  <th class="filterTable">Pembaharuan Terakhir</th>
-                </tr>
-                <tr>
-                  <th class="align-middle text-center">Kode Detail</th>
-                  <th class="align-middle text-center">Perusahaan</th>
-                  <th class="align-middle text-center">Departemen</th>
-                  <th class="align-middle text-center">Divisi</th>
-                  <th class="align-middle text-center">Posisi</th>
-                  <th class="align-middle text-center">Plan</th>
-                  <th class="align-middle text-center">Golongan</th>
-                  <th class="align-middle text-center">Status Aktif</th>
-                  <th class="align-middle text-center">Peran Kerja Utama</th>
-                  <th class="align-middle text-center">Pengguna Terakhir</th>
-                  <th class="align-middle text-center">Pembaharuan Terakhir</th>
-                </tr>
-              </thead>
-            </table>
-          </div>
+          <table class="table table-borderless w-100 nowrap table-information">
+            <tbody>
+              <tr>
+                <th>NIK</th>
+                <th class="px-1">:</th>
+                <td id="modalDetailViewNik"></td>
+              </tr>
+              <tr>
+                <th>Nama Lengkap</th>
+                <th class="px-1">:</th>
+                <td id="modalDetailViewFullname"></td>
+              </tr>
+            </tbody>
+          </table>
+          <table id="dgDetail" class="table table-hover table-striped table-bordered w-100 nowrap">
+            <thead class="table-dark">
+              <tr id="dgDetailFilter">
+                <th class="filterTable">Kode Detail</th>
+                <th class="filterTable">Perusahaan</th>
+                <th class="filterTable">Departemen</th>
+                <th class="filterTable">Divisi</th>
+                <th class="filterTable">Posisi</th>
+                <th class="filterTable">Plan</th>
+                <th class="filterTable">Golongan</th>
+                <th>Status Aktif</th>
+                <th>Peran Kerja Utama</th>
+                <th class="filterTable">Pengguna Terakhir</th>
+                <th class="filterTable">Pembaharuan Terakhir</th>
+              </tr>
+              <tr>
+                <th class="align-middle text-center">Kode Detail</th>
+                <th class="align-middle text-center">Perusahaan</th>
+                <th class="align-middle text-center">Departemen</th>
+                <th class="align-middle text-center">Divisi</th>
+                <th class="align-middle text-center">Posisi</th>
+                <th class="align-middle text-center">Plan</th>
+                <th class="align-middle text-center">Golongan</th>
+                <th class="align-middle text-center">Status Aktif</th>
+                <th class="align-middle text-center">Peran Kerja Utama</th>
+                <th class="align-middle text-center">Pengguna Terakhir</th>
+                <th class="align-middle text-center">Pembaharuan Terakhir</th>
+              </tr>
+            </thead>
+          </table>
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-sm btn-keluar" data-bs-dismiss="modal" data-bs-target="#modalDetailView">

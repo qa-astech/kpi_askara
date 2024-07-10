@@ -1,6 +1,7 @@
 import {
   IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5,
-  parseVersion, compareVersions, childVersion, number_format, number_format_big, monthAcro
+  parseVersion, compareVersions, childVersion, number_format, number_format_big, monthAcro,
+  checkBooleanFromServer
 } from '../../../third-party/utility-yudhi/utils.js';
 
 $.fn.dataTable.ext.errMode = 'none';
@@ -199,14 +200,14 @@ const insertTdEditor = async (jsonData) => {
         $('#polaritas_kpi_corp_' + index).val(objectData.polaritas_kpicorp).trigger('change');
       }
 
-      index_kpi_corp.disabled = objectData.terbit_kpicorp === 't';
-      name_kpi_corp.disabled = objectData.terbit_kpicorp === 't';
-      define_kpi_corp.disabled = objectData.terbit_kpicorp === 't';
-      control_cek_kpi_corp.disabled = objectData.terbit_kpicorp === 't';
-      target_kpi_corp.disabled = objectData.terbit_kpicorp === 't';
-      $('#satuan_kpi_corp_' + index)[0].disabled = objectData.terbit_kpicorp === 't';
-      $('#formula_kpi_corp_' + index)[0].disabled = objectData.terbit_kpicorp === 't';
-      $('#polaritas_kpi_corp_' + index)[0].disabled = objectData.terbit_kpicorp === 't';
+      index_kpi_corp.disabled = checkBooleanFromServer(objectData.terbit_kpicorp);
+      name_kpi_corp.disabled = checkBooleanFromServer(objectData.terbit_kpicorp);
+      define_kpi_corp.disabled = checkBooleanFromServer(objectData.terbit_kpicorp);
+      control_cek_kpi_corp.disabled = checkBooleanFromServer(objectData.terbit_kpicorp);
+      target_kpi_corp.disabled = checkBooleanFromServer(objectData.terbit_kpicorp);
+      $('#satuan_kpi_corp_' + index)[0].disabled = checkBooleanFromServer(objectData.terbit_kpicorp);
+      $('#formula_kpi_corp_' + index)[0].disabled = checkBooleanFromServer(objectData.terbit_kpicorp);
+      $('#polaritas_kpi_corp_' + index)[0].disabled = checkBooleanFromServer(objectData.terbit_kpicorp);
 
     }, objectData.index_parent)
   }
@@ -225,8 +226,8 @@ const funViewKPIYear = async (year) => {
     btnAddCopyDgUtama.removeEventListener('click', funBtnAddCopyDgUtama);
     btnEditDgUtama.removeEventListener('click', funBtnEditDgUtama);
     btnPublishDgUtama.removeEventListener('click', funBtnPublishDgUtama);
-    // // btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
-    // // btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
+    // btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
+    // btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
     btnReloadDgUtama.removeEventListener('click', funBtnReloadDgUtama);
     btnAddFreshDgUtama.disabled = false;
     btnAddCopyDgUtama.disabled = false;
@@ -262,7 +263,7 @@ const funViewKPIYear = async (year) => {
           <td class="text-end">${!IsEmpty(objectData.baseline_2, true) ? number_format_big(objectData.baseline_2, 2, '.', ',') : '-'}</td>
           <td class="text-end">${!IsEmpty(objectData.baseline_1, true) ? number_format_big(objectData.baseline_1, 2, '.', ',') : '-'}</td>
           <td class="text-end">${!IsEmpty(objectData.target_kpicorp, true) ? number_format_big(objectData.target_kpicorp, 2, '.', ',') : ''}</td>
-          <td class="text-center fw-bold ${objectData.terbit_kpicorp === 't' ? 'text-success' : 'text-danger'}">${objectData.terbit_kpicorp === 't' ? 'Sudah Terbit' : ''}</td>
+          <td class="text-center fw-bold ${checkBooleanFromServer(objectData.terbit_kpicorp) ? 'text-success' : 'text-danger'}">${checkBooleanFromServer(objectData.terbit_kpicorp) ? 'Sudah Terbit' : ''}</td>
         `;
         elemTr.innerHTML = elemTd;
         dgUtamaTbody.append(elemTr);
@@ -329,8 +330,8 @@ const funViewKPIYear = async (year) => {
       }
 
       btnEditDgUtama.addEventListener('click', funBtnEditDgUtama);
-      // // btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
-      // // btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
+      // btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
+      // btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
       btnPublishDgUtama.addEventListener('click', funBtnPublishDgUtama);
 
       btnAddFreshDgUtama.disabled = true;
@@ -529,10 +530,8 @@ const addFunSelectEditor = async (index) => {
     const value = input.value.trim().replace(/,/g, "");
     const numericDotRegex = /^[0-9.]*$/;
     const realValue = number_format_big(value, 2, '.', ',');
-    if (IsEmpty(value) && parseInt(value) !== 0) {
+    if (IsEmpty(value, true, true)) {
       input.value = null;
-    } else if (parseInt(value) === 0) {
-      input.value = 0;
     } else if (!numericDotRegex.test(value)) {
       input.value = stateTargetInput[index];
     } else {

@@ -96,9 +96,6 @@ class kpi_lock_unlock extends database {
     global $cleanWord;
     try {
 
-      // print_r($_POST);
-      // die();
-
       $year_kpi = $cleanWord->numberCk(@$_POST["year_kpi"], true, 'integer');
       $monthFrom_kpi = $cleanWord->numberCk(@$_POST["monthFrom_kpi"], true, 'integer');
       $monthTo_kpi = $cleanWord->numberCk(@$_POST["monthTo_kpi"], true, 'integer');
@@ -173,8 +170,6 @@ class kpi_lock_unlock extends database {
           foreach ($response as $key => $value) {
             $response[$key]['target_kpi'] = [];
             foreach ($response_target as $keyTarget => $valueTarget) {
-              // echo $typeKPI . "\n";
-              // print_r($valueTarget);
               if (
                 ($typeKPI == "KPI Department" && $value['id_realization'] == $valueTarget['id_kpidept']) ||
                 ($typeKPI == "KPI Division Korporat" && $value['id_realization'] == $valueTarget['id_kpidivcorp'])

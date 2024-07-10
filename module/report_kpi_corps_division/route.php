@@ -4,27 +4,20 @@ require_once('../../koneksi.php');
 require_once('serverside.php');
 
 $request = @$_REQUEST["act"];
+$classRoute = new report_kpi_division_corporate();
 switch ($request) {
-  case 'getKpiDivisi':
-    $classRoute = new kpi_bisnis_unit();
-    echo $classRoute->getKpiDivisi();
-    break;
-
-  case 'getHeadDivisi':
-    $classRoute = new kpi_bisnis_unit();
-    echo $classRoute->getHeadDivisi();
-    break;
-
-  case 'getDataDivisi':
-    $classRoute = new kpi_bisnis_unit();
-    echo $classRoute->getDataDivisi();
+  case 'getKpiDivisionCorporate':
+    echo $classRoute->getKpiDivisionCorporate();
     break;
 
   case 'jsonTahun':
-    $classRoute = new kpi_bisnis_unit();
     echo $classRoute->jsonTahun();
     break;
 
+  case 'jsonDepartment':
+    echo $classRoute->jsonDepartment();
+    break;
+  
   default:
     echo json_encode(
       array(

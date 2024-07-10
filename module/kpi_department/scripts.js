@@ -1,6 +1,7 @@
 import {
   IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5, number_format,
-  parseVersion, compareVersions, childVersion, number_format_big, monthAcro
+  parseVersion, compareVersions, childVersion, number_format_big, monthAcro,
+  checkBooleanFromServer
 } from '../../../third-party/utility-yudhi/utils.js';
 $.fn.dataTable.ext.errMode = 'none';
 
@@ -422,7 +423,7 @@ const insertTdEditor = async (jsonData) => {
         if (objectData.status_kpi === 'kpi_department_corps') {
           disableInput();
         }
-        if (objectData.terbit_kpidept === 't') {
+        if (checkBooleanFromServer(objectData.terbit_kpidept)) {
           disableInput();
           index_kpidept.disabled = true;
           target_kpibunit.disabled = true;
@@ -461,8 +462,8 @@ const funViewKPIYear = async () => {
     dgUtamaYear1.innerText = yearProgress - 1;
     btnEditDgUtama.removeEventListener('click', funBtnEditDgUtama);
     btnPublishDgUtama.removeEventListener('click', funBtnPublishDgUtama);
-    // // btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
-    // // btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
+    // btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
+    // btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
     btnReloadDgUtama.removeEventListener('click', funBtnReloadDgUtama);
     btnEditDgUtama.disabled = false;
     btnPublishDgUtama.disabled = false;
@@ -518,7 +519,7 @@ const funViewKPIYear = async () => {
         ${monthElem}
         <td class="text-center">${objectData.data_avail_name_department ?? ''}</td>
         <td class="text-center">${objectData.data_avail_fullname_users ?? ''}</td>
-        <td class="text-center ${objectData.terbit_kpidept === 't' ? 'text-success' : 'text-danger'} fw-bold">${objectData.terbit_kpidept === 't' ? 'Sudah Terbit' : 'Belum Terbit'}</td>
+        <td class="text-center ${checkBooleanFromServer(objectData.terbit_kpidept) ? 'text-success' : 'text-danger'} fw-bold">${checkBooleanFromServer(objectData.terbit_kpidept) ? 'Sudah Terbit' : 'Belum Terbit'}</td>
       `;
 
       elemTr.innerHTML = elemTd;
@@ -567,10 +568,10 @@ const funViewKPIYear = async () => {
     btnEditDgUtama.addEventListener('click', funBtnEditDgUtama);
 
     // funBtnExcelDetailDgUtama = async (e) => {}
-    // // btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
+    // btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
 
     // funBtnPDFDetailDgUtama = async (e) => {}
-    // // btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
+    // btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
 
     funBtnPublishDgUtama = async (e) => {
       confirmComponent.setupconfirm('Terbit KPI', 'bg-primary', 'text-white', 'Anda yakin ingin terbitkan KPI ini sekarang?');
@@ -766,10 +767,8 @@ const addFunSelectEditor = async (index) => {
       const value = input.value.trim().replace(/,/g, "");
       const numericDotRegex = /^[0-9.]*$/;
       const realValue = number_format_big(value, 2, '.', ',');
-      if (IsEmpty(value) && parseInt(value) !== 0) {
+      if (IsEmpty(value, true, true)) {
         input.value = null;
-      } else if (parseInt(value) === 0) {
-        input.value = 0;
       } else if (!numericDotRegex.test(value)) {
         input.value = stateTargetInput[objectMonth.number][index];
       } else {
@@ -977,7 +976,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const arr2 = parseVersion(indexInputCheck);
             const findAlter2 = jsonDataCheck.alias_perspective + indexInputCheck;
             if (findAlter2.includes(findAlter1) && childVersion(arr1, arr2)) {
-              if (jsonDataCheck.id_kpicorp) {
+              if (jsonDataCheck.id_kpidept) {
                 const arrInput = {};
                 arrInput.status_kpi = jsonData.status_kpi;
                 arrInput.id_kpidept = jsonData.id_kpidept;

@@ -280,7 +280,6 @@ class kpi_department extends database {
       $test_quo = 0;
       foreach ($_POST['index_kpidivcorp'] as $key => $value) {
 
-        $cascade_kpidivcorp = $cleanWord->textCk(@$_POST["cascade_kpidivcorp"][$key], true, 'trim');
         $target_kpicorp = $cleanWord->numberCk(@$_POST["target_kpicorp"][$key], true, 'integer', true);
         if ($target_kpicorp == 0) {
           $cascade_kpidivcorp = empty($_POST["cascade_kpidivcorp"][$key]) ? 'full-round' : $cleanWord->textCk(@$_POST["cascade_kpidivcorp"][$key], true, 'trim');

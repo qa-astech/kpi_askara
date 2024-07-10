@@ -73,6 +73,12 @@ class strategic_objective extends database {
 
   public function getStrategicObjective(){
     global $cleanWord;
+    $_POST['columns'] = array_map(function($v) {
+      if ($v['data'] === 'fullname_entry') {
+        $v['data'] = 'fullname_users';
+      }
+      return $v;
+    }, $_POST['columns']);
     try {
       // View Column
       $viewColumn = array(
@@ -80,16 +86,12 @@ class strategic_objective extends database {
         'text_perspective' => "('(' || b.alias_perspective || ') ' || b.name_perspective)::varchar",
         'index_sobject' => 'a',
         'text_sobject' => "(b.alias_perspective || a.index_sobject || '. ' || a.name_sobject)::varchar",
-        'user_entry' => 'a',
+        'fullname_users' => 'bb',
         'last_update' => 'a'
       );
       $viewCustomColumn = array_filter($viewColumn, function($val, $key) {
         return $key == 'text_perspective' || $key == 'text_sobject';
       }, ARRAY_FILTER_USE_BOTH);
-      // Total
-      $totalRecordsQuery = "SELECT COUNT(*) FROM strategic_objective";
-      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
-      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
       // Offset
       $start = $_POST['start'];
       // Limit
@@ -138,6 +140,15 @@ class strategic_objective extends database {
           }
         }
       }
+      // Total
+      $totalRecordsQuery = "SELECT COUNT(*)
+      from strategic_objective a
+      left join perspective b on b.id_perspective = a.id_perspective
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
+      where a.last_update is not null $filtering $searching";
+      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
+      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
 
       $cek = "SELECT a.*,
       $viewCustomColumn[text_perspective] as text_perspective,

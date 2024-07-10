@@ -1,6 +1,7 @@
 import {
   CheckIsObjectEmpty, IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5,
-  findSmallest, findSmallestObjectPerspective, number_format, number_format_big
+  findSmallest, findSmallestObjectPerspective, number_format, number_format_big,
+  checkBooleanFromServer
 } from '../../../third-party/utility-yudhi/utils.js';
 
 const alertComponent = new AlertElemBS5('alertComponent1');
@@ -145,7 +146,7 @@ const implanHeader = async () => {
   visibleMonth.forEach(element => {
     const elemImplan = document.createElement('th');
     elemImplan.classList.add('align-middle', 'text-center', 'tdMonth');
-    elemImplan.setAttribute('colspan', '6');
+    elemImplan.setAttribute('colspan', '7');
     elemImplan.dataset.month = element.number;
     elemImplan.innerText = element.full;
     elemImplan.style.borderLeft = "1px solid var(--bs-danger)";
@@ -159,6 +160,7 @@ const implanHeader = async () => {
     headerItemBulanElem += `
       <th class="align-middle text-center tdMonth" data-month="${element.number}" style="border-left: 1px solid var(--bs-danger)">Target</th>
       <th class="align-middle text-center tdMonth" data-month="${element.number}">Realisasi</th>
+      <th class="align-middle text-center tdMonth" data-month="${element.number}">Remarks</th>
       <th class="align-middle text-center tdMonth" data-month="${element.number}">Indikator Pencapaian</th>
       <th class="align-middle text-center tdMonth" data-month="${element.number}">Bukti File</th>
       <th class="align-middle text-center tdMonth" data-month="${element.number}">Diinput Oleh</th>
@@ -348,10 +350,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const updatedData = {};
       getData.forEach(data => {
-        if (CheckIsObjectEmpty(updatedData) || data.last_update > updatedData.last_update) {
-          updatedData.user_entry = data.user_entry;
-          updatedData.last_update = data.last_update;
-        }
+        data.target_kpi.forEach(monthData => {
+          console.log(monthData, 'out', updatedData);
+          if (CheckIsObjectEmpty(updatedData) || !updatedData.last_update || monthData.timeRealisasi > updatedData.last_update) {
+            updatedData.user_entry = monthData.fullnameRealisasi;
+            updatedData.last_update = monthData.timeRealisasi;
+            console.log(monthData, 'in', updatedData);
+          }
+        });
       });
       dgUtamaUserEntry.innerText = updatedData.user_entry;
       dgUtamaLastUpdate.innerText = updatedData.last_update;
@@ -374,9 +380,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         `;
         
         visibleMonth.forEach(element => {
-          const filteringArr = dataKpi.target_kpi.filter((objValue) => objValue.month === element.number)[0];
+          const filteringArr = dataKpi.target_kpi.filter((objValue) => parseInt(objValue.month) === parseInt(element.number))[0];
           if (filteringArr) {
-            if (filteringArr.lockStatus === 'f') {
+            if (!checkBooleanFromServer(filteringArr.lockStatus)) {
               trElem.innerHTML += `
                 <input type="hidden" name="type_kpi[${filteringArr.idTargetMonth}]" value="${filteringArr.typeTarget}">
                 <td class="bg-danger-subtle text-end" data-month="${element.number}" style="border-left: 1px solid var(--bs-danger)">${number_format_big(filteringArr.target, 2, '.', ',')}</td>
@@ -385,8 +391,18 @@ document.addEventListener("DOMContentLoaded", async () => {
                     type="text"
                     class="form-control realisasi_kpi"
                     name="realisasi_kpi[${filteringArr.idTargetMonth}]"
-                    style="width: 180px;"
+                    style="width: 240px;"
                     placeholder="Realisasi..."
+                    data-id-month="${filteringArr.idTargetMonth}"
+                  >
+                </td>
+                <td class="bg-danger-subtle" data-month="${element.number}">
+                  <input
+                    type="text"
+                    class="form-control remarks_kpi"
+                    name="remarks_kpi[${filteringArr.idTargetMonth}]"
+                    style="width: 240px;"
+                    placeholder="Remarks..."
                     data-id-month="${filteringArr.idTargetMonth}"
                   >
                 </td>
@@ -397,13 +413,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <input type="file" class="form-control file_kpi" name="file_kpi[${filteringArr.idTargetMonth}][]" style="width: 300px;" multiple>
                   </div>
                 </td>
-                <td class="bg-danger-subtle" data-month="${element.number}"></td>
-                <td class="bg-danger-subtle" data-month="${element.number}" style="border-right: 1px solid var(--bs-danger)"></td>
+                <td class="bg-danger-subtle" data-month="${element.number}">${filteringArr.fullnameRealisasi ?? ''}</td>
+                <td class="bg-danger-subtle" data-month="${element.number}" style="border-right: 1px solid var(--bs-danger)">${filteringArr.timeRealisasi ?? ''}</td>
               `;
             } else {
               trElem.innerHTML += `
                 <td class="bg-danger-subtle text-end" data-month="${element.number}" style="border-left: 1px solid var(--bs-danger)">${number_format_big(filteringArr.target, 2, '.', ',')}</td>
                 <td class="bg-danger-subtle" data-month="${element.number}">${filteringArr.realisasi ? number_format_big(filteringArr.realisasi, 2, '.', ',') : ''}</td>
+                <td class="bg-danger-subtle" data-month="${element.number}"></td>
                 <td class="bg-danger-subtle" data-month="${element.number}"></td>
                 <td class="bg-danger-subtle" data-month="${element.number}">
                   ${filteringArr.fileRealisasi ? `<button type="button" class="btn rounded btn-sm btn-zip" data-month="${element.number}"><span class="ps-2">Unduh File</span></button>` : ''}
@@ -415,6 +432,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           } else {
             trElem.innerHTML += `
               <td data-month="${element.number}" style="border-left: 1px solid var(--bs-danger)"></td>
+              <td data-month="${element.number}"></td>
               <td data-month="${element.number}"></td>
               <td data-month="${element.number}"></td>
               <td data-month="${element.number}"></td>
@@ -456,10 +474,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           const value = input.value.trim().replace(/,/g, "");
           const numericDotRegex = /^[0-9.]*$/;
           const realValue = number_format_big(value, 2, '.', ',');
-          if (IsEmpty(value) && parseInt(value) !== 0) {
+          if (IsEmpty(value, true, true)) {
             input.value = null;
-          } else if (parseInt(value) === 0) {
-            input.value = 0;
           } else if (!numericDotRegex.test(value)) {
             input.value = stateTargetInput[elementTarget.dataset.idMonth];
           } else {

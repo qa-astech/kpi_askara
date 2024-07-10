@@ -16,13 +16,9 @@ class users extends database {
         'nik_users' => 'a',
         'username_users' => 'a',
         'fullname_users' => 'a',
-        'user_entry' => 'a',
+        'fullname_entry' => 'bb',
         'last_update' => 'a'
       );
-      // Total
-      $totalRecordsQuery = "SELECT COUNT(*) FROM users";
-      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
-      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
       // Offset
       $start = $_POST['start'];
       // Limit
@@ -33,7 +29,13 @@ class users extends database {
       if (!empty($searchValueBox)) {
         foreach ($_POST['columns'] as $key => $value) {
           $column = $value['data'];
-          $searching .= !empty($column) ? $viewColumn[$column] . ".$column::text ilike '%$searchValueBox%' or " : '';
+          if (!empty($column)) {
+            if ($column === 'fullname_entry') {
+              $searching .= "bb.fullname_users::text ilike '%$searchValueBox%' or ";
+            } else {
+              $searching .= $viewColumn[$column] . ".$column::text ilike '%$searchValueBox%' or ";
+            }
+          }
         }
         $valueOfSearch = rtrim($searching, ' or ');
         $searching = !empty($valueOfSearch) ? "and ($valueOfSearch)" : "";
@@ -52,11 +54,28 @@ class users extends database {
       foreach ($_POST['columns'] as $key => $value) {
         $column = $value['data'];
         $searchValue = $cleanWord->textCk($value['search']['value'], false, 'trim');
-        $filtering .= !empty($searchValue) ? "and " . $viewColumn[$column] . ".$column::text ilike '%$searchValue%' " : "";
+        if (!empty($column)) {
+          if ($column === 'fullname_entry') {
+            $filtering .= "and bb.fullname_users::text ilike '%$searchValue%' ";
+          } else {
+            $filtering .= "and " . $viewColumn[$column] . ".$column::text ilike '%$searchValue%' ";
+          }
+        }
       }
+      // Total
+      $totalRecordsQuery = "SELECT COUNT(*)
+      from users a
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
+      where a.nik_users is not null $filtering $searching";
+      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
+      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
 
-      $cek = "SELECT a.* from users a
-      where a.last_update is not null $filtering $searching
+      $cek = "SELECT a.*, bb.fullname_users fullname_entry, bb.nik_users nik_entry
+      from users a
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
+      where a.nik_users is not null $filtering $searching
       order by $ordering
       offset $start limit $length
       ";

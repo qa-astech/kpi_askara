@@ -109,23 +109,30 @@ class kpi_realization_dept extends database {
   }
 
   public function getKpiRealization(){
-    global $cleanWord;
+    global $cleanWordPDO;
     try {
 
-      $year_kpi = $cleanWord->numberCk(@$_POST["year_kpi"], true, 'integer');
-      $monthFrom_kpi = $cleanWord->numberCk(@$_POST["monthFrom_kpi"], true, 'integer');
-      $monthTo_kpi = $cleanWord->numberCk(@$_POST["monthTo_kpi"], true, 'integer');
-      $indexKpi = $cleanWord->numberCk(@$_POST["statusKpi"], true, 'integer');
-      $typeKPI = $cleanWord->textCk(@$_POST["typeKPI"][$indexKpi], true, 'trim');
-      $companyKpi = $cleanWord->textCk(@$_POST["companyKpi"][$indexKpi], $typeKPI == "KPI Department", 'normal');
-      $departmentKpi = $cleanWord->textCk(@$_POST["departmentKpi"][$indexKpi], true, 'normal');
+      $year_kpi = $cleanWordPDO->numberCk(@$_POST["year_kpi"], true, 'integer');
+      $monthFrom_kpi = $cleanWordPDO->numberCk(@$_POST["monthFrom_kpi"], true, 'integer');
+      $monthTo_kpi = $cleanWordPDO->numberCk(@$_POST["monthTo_kpi"], true, 'integer');
+      $indexKpi = $cleanWordPDO->numberCk(@$_POST["statusKpi"], true, 'integer');
+      $typeKPI = $cleanWordPDO->textCk(@$_POST["typeKPI"][$indexKpi], true, 'trim');
+      $companyKpi = $cleanWordPDO->textCk(@$_POST["companyKpi"][$indexKpi], $typeKPI == "KPI Department", 'normal');
+      $departmentKpi = $cleanWordPDO->textCk(@$_POST["departmentKpi"][$indexKpi], true, 'normal');
 
-      $cek = "SELECT * from kpi_realization_dept where year_kpi_realization = $year_kpi and deptkpi_id = {$departmentKpi} and data_avail_id_usersetup = '$_SESSION[setupuser_kpi_askara]' ";
-      $cek .= $typeKPI == "KPI Department" ? "and compkpi_id = {$companyKpi} and (status_kpi = 'kpi_department_corps' or status_kpi = 'kpi_department_support') " : "";
+      $cek = "SELECT * from kpi_realization_dept where year_kpi_realization = :yearKpi and deptkpi_id = :departmentKpi and data_avail_id_usersetup = :userSetup ";
+      $cek .= $typeKPI == "KPI Department" ? "and compkpi_id = :companyKpi and (status_kpi = 'kpi_department_corps' or status_kpi = 'kpi_department_support') " : "";
       $cek .= $typeKPI == "KPI Division Korporat" ? "and (status_kpi = 'kpi_divcorp_corps' or status_kpi = 'kpi_divcorp_support') " : "";
       $cek .= "ORDER BY index_perspective, STRING_TO_ARRAY(index_kpi_realization, '.')::INT[] asc";
-      $query = $this->sendQuery($this->konek_sita_db(), $cek);
-      $response = pg_fetch_all($query);
+      // $query = $this->sendQuery($this->konek_sita_db(), $cek);
+      // $response = pg_fetch_all($query);
+      $query = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek, array(
+        ':yearKpi' => $year_kpi,
+        ':departmentKpi' => $departmentKpi,
+        ':companyKpi' => $companyKpi,
+        ':userSetup' => $_SESSION['setupuser_kpi_askara']
+      ));
+      $response = $query->fetchAll();
       if (empty($response)) {
         return json_encode(
           array(
@@ -134,7 +141,7 @@ class kpi_realization_dept extends database {
           )
         );
       } else {
-        $response = $cleanWord->cleaningArrayHtml($response);
+        $response = $cleanWordPDO->cleaningArrayHtml($response);
         if ($typeKPI == "KPI Department") {
           $cek_target = "SELECT a.*,
           b.value_kpidept_real realisasi, b.file_kpidept_real file_realisasi, b.id_kpidept_real id_tbl_realisasi,
@@ -146,14 +153,21 @@ class kpi_realization_dept extends database {
           where a.id_kpidept in (
             select id_kpidept
             from kpi_department
-            where year_kpidept = $year_kpi
-            and compkpi_id = {$companyKpi}
-            and deptkpi_id = {$departmentKpi}
-            and data_avail_id_usersetup = '$_SESSION[setupuser_kpi_askara]'
+            where year_kpidept = :yearKpi
+            and compkpi_id = :companyKpi
+            and deptkpi_id = :departmentKpi
+            and data_avail_id_usersetup = :userSetup
           )
           and a.month_kpidept >= $monthFrom_kpi and a.month_kpidept <= $monthTo_kpi";
-          $query_target = $this->sendQuery($this->konek_sita_db(), $cek_target);
-          $response_target = pg_fetch_all($query_target);
+          // $query_target = $this->sendQuery($this->konek_sita_db(), $cek_target);
+          // $response_target = pg_fetch_all($query_target);
+          $query_target = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_target, array(
+            ':yearKpi' => $year_kpi,
+            ':departmentKpi' => $departmentKpi,
+            ':companyKpi' => $companyKpi,
+            ':userSetup' => $_SESSION['setupuser_kpi_askara']
+          ));
+          $response_target = $query_target->fetchAll();
 
         } elseif ($typeKPI == "KPI Division Korporat") {
           $cek_target = "SELECT a.*,
@@ -166,13 +180,20 @@ class kpi_realization_dept extends database {
           where a.id_kpidivcorp in (
             SELECT id_kpidivcorp
             FROM kpi_divcorp
-            WHERE year_kpidivcorp = $year_kpi
-            and deptkpi_id = {$departmentKpi}
-            and data_avail_id_usersetup = '$_SESSION[setupuser_kpi_askara]'
+            WHERE year_kpidivcorp = :yearKpi
+            and deptkpi_id = :departmentKpi
+            and data_avail_id_usersetup = :userSetup
           )
           and a.month_kpidivcorp >= $monthFrom_kpi and a.month_kpidivcorp <= $monthTo_kpi";
-          $query_target = $this->sendQuery($this->konek_sita_db(), $cek_target);
-          $response_target = pg_fetch_all($query_target);
+          // $query_target = $this->sendQuery($this->konek_sita_db(), $cek_target);
+          // $response_target = pg_fetch_all($query_target);
+          $query_target = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_target, array(
+            ':yearKpi' => $year_kpi,
+            ':departmentKpi' => $departmentKpi,
+            ':userSetup' => $_SESSION['setupuser_kpi_askara']
+          ));
+          $response_target = $query_target->fetchAll();
+
         }
 
         if (empty($response_target)) {

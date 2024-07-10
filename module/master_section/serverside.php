@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 class section_master extends database {
 
   public function __construct(){
@@ -65,6 +66,12 @@ class section_master extends database {
 
   public function getSection(){
     global $cleanWord;
+    $_POST['columns'] = array_map(function($v) {
+      if ($v['data'] === 'fullname_entry') {
+        $v['data'] = 'fullname_users';
+      }
+      return $v;
+    }, $_POST['columns']);
     try {
       $id_department = $cleanWord->textCk(@$_POST["id_department"], true, 'normal');
       // View Column
@@ -72,13 +79,9 @@ class section_master extends database {
         'id_section' => 'a',
         'name_section' => 'a',
         'id_department' => 'a',
-        'user_entry' => 'a',
+        'fullname_users' => 'bb',
         'last_update' => 'a'
       );
-      // Total
-      $totalRecordsQuery = "SELECT COUNT(*) FROM section_master";
-      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
-      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
       // Offset
       $start = $_POST['start'];
       // Limit
@@ -111,7 +114,19 @@ class section_master extends database {
         $filtering .= !empty($searchValue) ? "and " . $viewColumn[$column] . ".$column::text ilike '%$searchValue%' " : "";
       }
 
-      $cek = "SELECT a.* from section_master a
+      // Total
+      $totalRecordsQuery = "SELECT COUNT(*)
+      from section_master a
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
+      where a.id_department = {$id_department} $filtering $searching";
+      $totalRecordsResult = $this->sendQuery($this->konek_sita_db(), $totalRecordsQuery);
+      $totalRecords = pg_fetch_result($totalRecordsResult, 0, 0);
+
+      $cek = "SELECT a.*, bb.fullname_users fullname_entry, bb.nik_users nik_entry
+      from section_master a
+      left join all_users_setup aa on aa.id_usersetup = a.user_entry
+      left join users bb on bb.nik_users = aa.nik
       where a.id_department = {$id_department} $filtering $searching
       order by $ordering
       offset $start limit $length

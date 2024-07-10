@@ -1,4 +1,4 @@
-import { IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5 } from '../../../third-party/utility-yudhi/utils.js';
+import { IsEmpty, resetInputExceptChoice, sendViaFetchForm, AlertElemBS5, ConfirmElemBS5, checkBooleanFromServer } from '../../../third-party/utility-yudhi/utils.js';
 $.fn.dataTable.ext.errMode = 'none';
 
 const btnElemDgUtama = `
@@ -58,49 +58,64 @@ class DgUtama {
           },
           columns: [
             {
-              className: 'dt-control',
+              className: 'align-middle dt-control',
               orderable: false,
               data: null,
               defaultContent: '',
             },
-            { data: 'id_company' },
-            { data: 'name_company' },
-            { data: 'alias_company' },
+            {
+              data: 'id_company',
+              className: 'align-middle'
+            },
+            {
+              data: 'name_company',
+              className: 'align-middle'
+            },
+            {
+              data: 'alias_company',
+              className: 'align-middle'
+            },
             {
               data: 'stat_group',
-              className: 'text-center',
+              className: 'align-middle text-center',
               render: function ( data, type, row, meta ) {
-                return data === "t" ? `<i class="fa-solid fa-check text-success"></i>` : `<i class="fa-solid fa-xmark text-danger"></i>`;
+                return checkBooleanFromServer(data)
+                  ? `<i class="fa-solid fa-check text-success"></i>`
+                  : `<i class="fa-solid fa-xmark text-danger"></i>`;
               }
             },
             {
               data: 'stat_customer',
-              className: 'text-center',
+              className: 'align-middle text-center',
               render: function ( data, type, row, meta ) {
-                return data === "t" ? `<i class="fa-solid fa-check text-success"></i>` : `<i class="fa-solid fa-xmark text-danger"></i>`;
+                return checkBooleanFromServer(data)
+                  ? `<i class="fa-solid fa-check text-success"></i>`
+                  : `<i class="fa-solid fa-xmark text-danger"></i>`;
               }
             },
             {
               data: 'stat_supplier',
-              className: 'text-center',
+              className: 'align-middle text-center',
               render: function ( data, type, row, meta ) {
-                return data === "t" ? `<i class="fa-solid fa-check text-success"></i>` : `<i class="fa-solid fa-xmark text-danger"></i>`;
+                return checkBooleanFromServer(data)
+                  ? `<i class="fa-solid fa-check text-success"></i>`
+                  : `<i class="fa-solid fa-xmark text-danger"></i>`;
               }
             },
             {
               data: 'logo_perusahaan',
-              className: 'text-center',
+              className: 'align-middle text-center',
               render: function ( data, type, row, meta ) {
                 return !IsEmpty(data) ? `<img src="logo/${data}" alt="logo_perusahaan" class="d-inline-block" style="max-width: 100%; max-height: 80px;">` : ``;
               }
             },
             {
-              data: 'user_entry',
-              className: 'text-center'
+              data: 'fullname_entry',
+              className: 'align-middle text-center'
             },
             {
               data: 'last_update',
-              className: 'text-center'
+              className: 'align-middle text-center'
             }
           ],
           paging: true,
@@ -205,7 +220,7 @@ class DgDetail {
             { data: 'name_plant' },
             { data: 'golongan' },
             {
-              data: 'user_entry',
+              data: 'fullname_entry',
               className: 'text-center'
             },
             {
@@ -438,9 +453,11 @@ const editModalUtama = async (e) => {
   company_id.value = data.id_company;
   company_name.value = data.name_company;
   company_alias.value = data.alias_company;
-  stat_group.checked = data.stat_group === 't';
-  stat_customer.checked = data.stat_customer === 't';
-  stat_supplier.checked = data.stat_supplier === 't';
+
+  stat_group.checked = checkBooleanFromServer(data.stat_group);
+  stat_customer.checked = checkBooleanFromServer(data.stat_customer);
+  stat_supplier.checked = checkBooleanFromServer(data.stat_supplier);
+
   image_change1.checked = true;
   modalUtamaImageView.src = 'logo/' + data.logo_perusahaan;
   saveModalUtama = async (e) => {
@@ -608,7 +625,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!modalDetailBackdrop.classList.contains('d-none')) modalDetailBackdrop.classList.add('d-none');
   });
 
-  if (accessModule.access_add === 't') {
+  if (checkBooleanFromServer(accessModule.access_add)) {
     dgUtama.btnAdd.addEventListener('click', async () => {
       await resetModalUtama();
       modalUtama._element.addEventListener('shown.bs.modal', addModalUtama);
@@ -624,7 +641,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dgDetail.btnAdd.disabled = true;
   }
 
-  if (accessModule.access_edit === 't') {
+  if (checkBooleanFromServer(accessModule.access_edit)) {
     dgUtama.btnEdit.addEventListener('click', async () => {
       const data = dgUtama.table.row( { selected: true } ).data();
       if (!IsEmpty(data)) {
@@ -650,7 +667,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dgDetail.btnEdit.disabled = true;
   }
 
-  if (accessModule.access_delete === 't') {
+  if (checkBooleanFromServer(accessModule.access_delete)) {
     dgUtama.btnDelete.addEventListener('click', async () => {
       const data = dgUtama.table.row( { selected: true } ).data();
       if (!IsEmpty(data.id_company)) {
@@ -710,7 +727,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dgDetail.btnDelete.disabled = true;
   }
 
-  if (accessModule.access_print === 't') {
+  if (checkBooleanFromServer(accessModule.access_print)) {
     // dgUtama.btnExcelDetail.addEventListener('click', async () => {});
     dgUtama.btnPDFDetail.addEventListener('click', async () => {});
   } else {

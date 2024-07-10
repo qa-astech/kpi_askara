@@ -1,5 +1,4 @@
 <?php
-// error_reporting(0);
 require_once('koneksi.php');
 class logAttempt extends database {
 
@@ -12,10 +11,10 @@ class logAttempt extends database {
 
   public function login(){
     global $cleanWordPDO;
-    $username = $cleanWordPDO->textCk(@$_POST["username"], true, 'normal');
-    $password = $cleanWordPDO->textCk(@$_POST["password"], true, 'plain');
-    $host = !empty($_SERVER['HTTP_HOST']) ? $cleanWordPDO->textCk(@$_SERVER['HTTP_HOST'], false, 'trim') : 'Not Detected';
-    $user_agent = !empty($_SERVER['HTTP_USER_AGENT']) ? $cleanWordPDO->textCk(@$_SERVER['HTTP_USER_AGENT'], false, 'trim') : 'Not Detected';
+    $username = $cleanWordPDO->textCk(@$_POST["username"], true, 'normal', null, "username");
+    $password = $cleanWordPDO->textCk(@$_POST["password"], true, 'normal', 'plain', "password");
+    $host = !empty($_SERVER['HTTP_HOST']) ? $cleanWordPDO->textCk(@$_SERVER['HTTP_HOST'], false) : 'Not Detected';
+    $user_agent = !empty($_SERVER['HTTP_USER_AGENT']) ? $cleanWordPDO->textCk(@$_SERVER['HTTP_USER_AGENT'], false) : 'Not Detected';
 
     try {
       
@@ -47,8 +46,6 @@ class logAttempt extends database {
           ) VALUES (
             :username, 'login', :host, :userAgent, :lastUpdate
           );";
-          // {$username}, 'login', '$host', '$user_agent', '".$this->last_update."'
-          // $this->sendQuery($this->konek_sita_db(), $send_sql);
 
           $query_user = $this->sendQueryPDO($this->konek_kpi_pdo(), $send_sql, array(
             ':username' => $username,
