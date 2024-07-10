@@ -1,5 +1,4 @@
 <?php
-error_reporting(0);
 class section_master extends database {
 
   public function __construct(){

@@ -1,5 +1,4 @@
 <?php
-error_reporting(0);
 class company_detail extends database {
 
   public function __construct(){
