@@ -178,7 +178,7 @@ class report_kpi_department extends database {
       $main_data = $query->fetchAll();
 
       $cek_month = "SELECT distinct id_kpidept, month_kpidept as month_realisasi, value_kpidept_real as realisasi, target_kpidept as target
-      from target_distinct_kpibunit
+      from target_distinct_kpidept
       where id_kpidept IN (
         SELECT distinct id_kpidept
         from kpi_department
@@ -192,7 +192,7 @@ class report_kpi_department extends database {
       $data_month = $query_month->fetchAll();
 
       $cek_total_realisasi = "SELECT distinct id_kpidept, sum(value_kpidept_real) as total_realisasi
-      from target_distinct_kpibunit
+      from target_distinct_kpidept
       where id_kpidept IN (
         SELECT distinct id_kpidept
         from kpi_department
@@ -209,9 +209,6 @@ class report_kpi_department extends database {
         $main_data[$key]['month'] = array_filter($data_month, function($filterVal) use ($value) {
           return $filterVal['id_kpidept'] === $value['id_kpidept'];
         });
-        // $main_data[$key]['totalRealisasi'] = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
-        //   return $filterVal['id_kpidept'] === $value['id_kpidept'];
-        // }), 'total_realisasi')[0];
         $arrayTotalRealisasi = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
           return $filterVal['id_kpidept'] === $value['id_kpidept'];
         }), 'total_realisasi');
