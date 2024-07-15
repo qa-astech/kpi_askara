@@ -120,18 +120,26 @@ class kpi_realization_dept extends database {
       $companyKpi = $cleanWordPDO->textCk(@$_POST["companyKpi"][$indexKpi], $typeKPI == "KPI Department", 'normal');
       $departmentKpi = $cleanWordPDO->textCk(@$_POST["departmentKpi"][$indexKpi], true, 'normal');
 
-      $cek = "SELECT * from kpi_realization_dept where year_kpi_realization = :yearKpi and deptkpi_id = :departmentKpi and data_avail_id_usersetup = :userSetup ";
-      $cek .= $typeKPI == "KPI Department" ? "and compkpi_id = :companyKpi and (status_kpi = 'kpi_department_corps' or status_kpi = 'kpi_department_support') " : "";
-      $cek .= $typeKPI == "KPI Division Korporat" ? "and (status_kpi = 'kpi_divcorp_corps' or status_kpi = 'kpi_divcorp_support') " : "";
-      $cek .= "ORDER BY index_perspective, STRING_TO_ARRAY(index_kpi_realization, '.')::INT[] asc";
-      // $query = $this->sendQuery($this->konek_sita_db(), $cek);
-      // $response = pg_fetch_all($query);
-      $query = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek, array(
+      $sendArray = array(
         ':yearKpi' => $year_kpi,
         ':departmentKpi' => $departmentKpi,
         ':companyKpi' => $companyKpi,
         ':userSetup' => $_SESSION['setupuser_kpi_askara']
-      ));
+      );
+      
+      $sendArrayMain = array();
+      $cek = "SELECT * from kpi_realization_dept where year_kpi_realization = :yearKpi and deptkpi_id = :departmentKpi and data_avail_id_usersetup = :userSetup ";
+      if ($typeKPI === "KPI Department") {
+        $cek .= "and compkpi_id = :companyKpi and (status_kpi = 'kpi_department_corps' or status_kpi = 'kpi_department_support') ";
+        $sendArrayMain = $sendArray;
+      } elseif ($typeKPI === "KPI Division Korporat") {
+        $cek .= "and (status_kpi = 'kpi_divcorp_corps' or status_kpi = 'kpi_divcorp_support') ";
+        $sendArrayMain = array_filter($sendArray, function ($v, $k) {
+          return !in_array($k, [':companyKpi'], true);
+        }, ARRAY_FILTER_USE_BOTH);
+      }
+      $cek .= "ORDER BY index_perspective, STRING_TO_ARRAY(index_kpi_realization, '.')::INT[] asc";
+      $query = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek, $sendArrayMain);
       $response = $query->fetchAll();
       if (empty($response)) {
         return json_encode(
@@ -159,14 +167,7 @@ class kpi_realization_dept extends database {
             and data_avail_id_usersetup = :userSetup
           )
           and a.month_kpidept >= $monthFrom_kpi and a.month_kpidept <= $monthTo_kpi";
-          // $query_target = $this->sendQuery($this->konek_sita_db(), $cek_target);
-          // $response_target = pg_fetch_all($query_target);
-          $query_target = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_target, array(
-            ':yearKpi' => $year_kpi,
-            ':departmentKpi' => $departmentKpi,
-            ':companyKpi' => $companyKpi,
-            ':userSetup' => $_SESSION['setupuser_kpi_askara']
-          ));
+          $query_target = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_target, $sendArray);
           $response_target = $query_target->fetchAll();
 
         } elseif ($typeKPI == "KPI Division Korporat") {
@@ -185,13 +186,9 @@ class kpi_realization_dept extends database {
             and data_avail_id_usersetup = :userSetup
           )
           and a.month_kpidivcorp >= $monthFrom_kpi and a.month_kpidivcorp <= $monthTo_kpi";
-          // $query_target = $this->sendQuery($this->konek_sita_db(), $cek_target);
-          // $response_target = pg_fetch_all($query_target);
-          $query_target = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_target, array(
-            ':yearKpi' => $year_kpi,
-            ':departmentKpi' => $departmentKpi,
-            ':userSetup' => $_SESSION['setupuser_kpi_askara']
-          ));
+          $query_target = $this->sendQueryPDO($this->konek_kpi_pdo(), $cek_target, array_filter($sendArray, function ($v, $k) {
+            return !in_array($k, [':companyKpi'], true);
+          }, ARRAY_FILTER_USE_BOTH));
           $response_target = $query_target->fetchAll();
 
         }
@@ -229,8 +226,8 @@ class kpi_realization_dept extends database {
   }
 
   private $columnTable = array(
-    'kpi_department_realization' => array('id_kpidept_real', 'id_kpidept_target', 'value_kpidept_real', 'file_kpidept_real'),
-    'kpi_divcorp_realization' => array('id_kpidivcorp_real', 'id_kpidivcorp_target', 'value_kpidivcorp_real', 'file_kpidivcorp_real')
+    'kpi_department_realization' => array('id_kpidept_real', 'id_kpidept_target', 'value_kpidept_real', 'file_kpidept_real', 'remarks'),
+    'kpi_divcorp_realization' => array('id_kpidivcorp_real', 'id_kpidivcorp_target', 'value_kpidivcorp_real', 'file_kpidivcorp_real', 'remarks')
   );
 
   private function destructSendKpi($typeTarget) {
@@ -242,12 +239,20 @@ class kpi_realization_dept extends database {
     $arrFilter = !empty($filterKpi) ? array_filter($_POST['realisasi_kpi'], function($value, $key) use ($keyFilterKpi) {
       return isset($value) && $value !== null && strval($value) !== "" && in_array($key, $keyFilterKpi);
     }, ARRAY_FILTER_USE_BOTH) : array();
+    $remarksFilter = !empty($filterKpi) ? array_filter($_POST['remarks_kpi'], function($value, $key) use ($keyFilterKpi) {
+      return isset($value) && $value !== null && strval($value) !== "" && in_array($key, $keyFilterKpi);
+    }, ARRAY_FILTER_USE_BOTH) : array();
+    $isRealisasiLessThanTarget = !empty($filterKpi) ? array_filter($_POST['isRealisasiLessThanTarget'], function($value, $key) use ($keyFilterKpi) {
+      return isset($value) && $value !== null && strval($value) !== "" && in_array($key, $keyFilterKpi);
+    }, ARRAY_FILTER_USE_BOTH) : array();
     $arrKeys = !empty($filterKpi) ? array_keys($arrFilter) : array();
     $arrMapKeys = !empty($arrKeys) ? array_map(function($value) {
       return "'$value'";
     }, $arrKeys) : array();
     $implodeId = !empty($arrMapKeys) ? implode(',', $arrMapKeys) : '';
     return array(
+      'isRealisasiLessThanTarget' => $isRealisasiLessThanTarget,
+      'remarksFilter' => $remarksFilter,
       'arrFilter' => $arrFilter,
       'implodeId' => $implodeId
     );
@@ -260,6 +265,8 @@ class kpi_realization_dept extends database {
       $makeArray['type_table'] = $tableName;
       $makeArray['id_target'] = $key;
       $makeArray['realisasi'] = $value;
+      $makeArray['isRealisasiLessThanTarget'] = $dataReal['isRealisasiLessThanTarget'][$key];
+      $makeArray['remarks'] = $dataReal['remarksFilter'][$key];
       if (!empty($dataTarget)) {
         foreach ($dataTarget as $keyChild => $valueChild) {
           if ($valueChild[$this->columnTable[$tableName][1]] == $key) {
@@ -284,6 +291,8 @@ class kpi_realization_dept extends database {
   public function sendKpiRealization(){
     global $cleanWord, $upload;
     try {
+
+      // print_r($_POST);
 
       $department = $this->destructSendKpi('KPI Department');
       $divisionKorporat = $this->destructSendKpi('KPI Division Korporat');
@@ -318,6 +327,8 @@ class kpi_realization_dept extends database {
       ]);
 
       $insert = "";
+      print_r($mergeClean);
+      die();
       foreach ($mergeClean as $key => $value) {
 
         if (!empty($value['id_realisasi'])) {
@@ -345,6 +356,7 @@ class kpi_realization_dept extends database {
         }
 
         $realisasi = $cleanWord->numberCk(@$value['realisasi'], true, 'text', true);
+        $remarks = $cleanWord->numberCk(@$value['remarks'], true, 'text', true);
         if (!empty($value['id_realisasi'])) {
           if ($file_evidence !== "{}") {
             $old_file_evidence = array_merge($old_file_evidence, $value['file_realisasi']);
@@ -362,7 +374,6 @@ class kpi_realization_dept extends database {
           ";
         } else {
           $id_target = $cleanWord->textCk(@$value['id_target'], true, 'normal');
-          // $realisasi = $cleanWord->numberCk(@$value['realisasi'], true, 'double', true);
           $insert .= "INSERT INTO $value[type_table] (
             ".$this->columnTable[$value['type_table']][0].",
             ".$this->columnTable[$value['type_table']][1].",

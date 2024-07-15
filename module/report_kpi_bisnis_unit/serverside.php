@@ -171,9 +171,13 @@ class kpi_bisnis_unit extends database {
         $main_data[$key]['year'] = array_filter($data_year, function($filterVal) use ($value) {
           return $filterVal['id_kpibunit'] === $value['id_kpibunit'];
         });
-        $main_data[$key]['totalRealisasi'] = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
+        // $main_data[$key]['totalRealisasi'] = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
+        //   return $filterVal['id_kpibunit'] === $value['id_kpibunit'];
+        // }), 'total_realisasi')[0];
+        $arrayTotalRealisasi = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
           return $filterVal['id_kpibunit'] === $value['id_kpibunit'];
-        }), 'total_realisasi')[0];
+        }), 'total_realisasi');
+        $main_data[$key]['totalRealisasi'] = $arrayTotalRealisasi[0] ?? null;
       }
       return json_encode($main_data);
 

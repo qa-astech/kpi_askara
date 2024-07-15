@@ -155,9 +155,10 @@ class report_kpi_division_corporate extends database {
         $main_data[$key]['month'] = array_filter($data_month, function($filterVal) use ($value) {
           return $filterVal['id_kpidivcorp'] === $value['id_kpidivcorp'];
         });
-        $main_data[$key]['totalRealisasi'] = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
-          return $filterVal['id_kpidivcorp'] === $value['id_kpidivcorp'];
-        }), 'total_realisasi')[0];
+        $arrayTotalRealisasi = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
+          return $filterVal['id_kpicorp'] === $value['id_kpicorp'];
+        }), 'total_realisasi');
+        $main_data[$key]['totalRealisasi'] = $arrayTotalRealisasi[0] ?? null;
       }
       return json_encode($main_data);
 

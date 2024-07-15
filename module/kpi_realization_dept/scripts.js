@@ -4,6 +4,14 @@ import {
   checkBooleanFromServer
 } from '../../../third-party/utility-yudhi/utils.js';
 
+import BigNumber from '../../../third-party/bignumberjs/bignumber.mjs';
+BigNumber.config({
+  DECIMAL_PLACES: 5
+});
+// const test1 = BigNumber('0.054');
+// const test2 = BigNumber('5000000000000000000.00');
+// console.log(test1.isLessThan(test2), test2.isLessThan(test1));
+
 const alertComponent = new AlertElemBS5('alertComponent1');
 const confirmComponent = new ConfirmElemBS5('confirmComponent1');
 const dgUtamaYearInput = document.getElementById('dgUtamaYearInput');
@@ -324,6 +332,32 @@ document.addEventListener("DOMContentLoaded", async () => {
           saveProgramKPI = true;
           try {
             const sendData = new FormData(formRealization);
+
+            // get Id Target
+            const formDataObject = Object.fromEntries(sendData.entries());
+            let arrayIdTarget = [];
+            for (const [key, value] of Object.entries(formDataObject)) {
+              const regex = /\[(.*?)\]/;
+              const match = key.match(regex);
+              const id_target = match ? match[1] : null;
+              if (id_target) {
+                arrayIdTarget.push(id_target);
+              }
+            }
+            const uniqId = [...new Set(arrayIdTarget)];
+
+            // get realisasi & target, basedOn Id
+            uniqId.forEach(uniqVal => {
+              const allElemInput = Object.values(formRealization.elements);
+              const filteringInput = allElemInput.filter((element) => element.name.includes(uniqVal));
+              const [targetElem] = filteringInput.filter((element) => element.name.includes('target_kpi'));
+              const [realisasiElem] = filteringInput.filter((element) => element.name.includes('realisasi_kpi'));
+              const [polaritasElem] = filteringInput.filter((element) => element.name.includes('polaritas_kpi'));
+              const realisasiValue = realisasiElem ? new BigNumber(realisasiElem.value) : null;
+              const targetValue = targetElem ? new BigNumber(targetElem.value) : null;
+              sendData.append(`isRealisasiLessThanTarget[${uniqVal}]`, !IsEmpty(realisasiElem.value, true, true) ? (polaritasElem.value === 'max' ? realisasiValue.isLessThan(targetValue) : realisasiValue.isMoreThan(targetValue)) : null);
+            });
+
             const getData = await sendViaFetchForm('route.php?act=sendKpiRealization', sendData);
             alertComponent.sendAnAlertOnTry(getData, resetProgram);
           } catch (error) {
@@ -351,11 +385,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       const updatedData = {};
       getData.forEach(data => {
         data.target_kpi.forEach(monthData => {
-          console.log(monthData, 'out', updatedData);
           if (CheckIsObjectEmpty(updatedData) || !updatedData.last_update || monthData.timeRealisasi > updatedData.last_update) {
             updatedData.user_entry = monthData.fullnameRealisasi;
             updatedData.last_update = monthData.timeRealisasi;
-            console.log(monthData, 'in', updatedData);
           }
         });
       });
@@ -384,7 +416,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           if (filteringArr) {
             if (!checkBooleanFromServer(filteringArr.lockStatus)) {
               trElem.innerHTML += `
+                <input type="hidden" name="polaritas_kpi[${filteringArr.idTargetMonth}]" value="${dataKpi.polaritas_kpi_realization}">
                 <input type="hidden" name="type_kpi[${filteringArr.idTargetMonth}]" value="${filteringArr.typeTarget}">
+                <input type="hidden" name="target_kpi[${filteringArr.idTargetMonth}]" value="${filteringArr.target}">
                 <td class="bg-danger-subtle text-end" data-month="${element.number}" style="border-left: 1px solid var(--bs-danger)">${number_format_big(filteringArr.target, 2, '.', ',')}</td>
                 <td class="bg-danger-subtle" data-month="${element.number}">
                   <input

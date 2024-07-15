@@ -209,9 +209,13 @@ class report_kpi_department extends database {
         $main_data[$key]['month'] = array_filter($data_month, function($filterVal) use ($value) {
           return $filterVal['id_kpidept'] === $value['id_kpidept'];
         });
-        $main_data[$key]['totalRealisasi'] = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
+        // $main_data[$key]['totalRealisasi'] = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
+        //   return $filterVal['id_kpidept'] === $value['id_kpidept'];
+        // }), 'total_realisasi')[0];
+        $arrayTotalRealisasi = array_column(array_filter($data_total_realisasi, function($filterVal) use ($value) {
           return $filterVal['id_kpidept'] === $value['id_kpidept'];
-        }), 'total_realisasi')[0];
+        }), 'total_realisasi');
+        $main_data[$key]['totalRealisasi'] = $arrayTotalRealisasi[0] ?? null;
       }
       return json_encode($main_data);
 

@@ -94,7 +94,7 @@ class database {
     $dbcon = "
       host=localhost
       port=5432
-      dbname=kpi_askara
+      dbname=kpi_server
       user=postgres
       password=postgres
     ";
