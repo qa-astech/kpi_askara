@@ -460,6 +460,48 @@ class kpi_department extends database {
     }
   }
 
+  public function changePIC(){
+    global $cleanWordPDO;
+    $sendArrayTemplate = array(
+      ':userEntry' => $_SESSION['setupuser_kpi_askara'],
+      ':lastUpdate' => $this->last_update,
+    );
+    $beginConnect = $this->konek_kpi_pdo();
+    $beginConnect->beginTransaction();
+    try {
+      foreach ($_POST['id_changeuser'] as $key => $value) {
+        $sendArray = array_merge($sendArrayTemplate, [
+          ':id_' . $key => $cleanWordPDO->textCk(@$_POST["id_changeuser"][$key], true),
+          ':user_' . $key => $cleanWordPDO->textCk(@$_POST["userpic_changeuser"][$key], true),
+        ]);
+        $sql = "UPDATE kpi_department_support SET
+        id_usersetup = :user_$key,
+        user_entry = :userEntry,
+        last_update = :lastUpdate,
+        flag = 'u'
+        where id_kpidept = :id_$key;
+        ";
+        $this->sendQueryPDO($beginConnect, trim($sql), $sendArray);
+      }
+      $beginConnect->commit();
+      return json_encode(
+        array(
+          'response'=>'success',
+          'alert'=>"Data Berhasil diubah!"
+        )
+      );
+    } catch (Exception $e) {
+      $beginConnect->rollBack();
+      return json_encode(
+        array(
+          'response'=>'error',
+          'alert'=>'Terjadi kesalahan! ❌',
+          'error'=>$e
+        )
+      );
+    }
+  }
+
   public function publishKpiDepartment(){
     global $cleanWord;
     try {

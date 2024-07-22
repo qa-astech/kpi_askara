@@ -128,7 +128,9 @@ const accessModule = {
 const dgUtama = new DgUtama();
 const alertComponent = new AlertElemBS5('alertComponent1');
 const confirmComponent = new ConfirmElemBS5('confirmComponent1');
-const modalUtama = bootstrap.Modal.getOrCreateInstance('#modalUtama');
+const modalUtama = bootstrap.Modal.getOrCreateInstance('#modalUtama', {
+  keyboard: false
+});
 const modalUtamaForm = document.getElementById('modalUtamaForm');
 const modalUtamaTitle = document.getElementById('modalUtamaTitle');
 const modalUtamaBtnSave = document.getElementById('modalUtamaBtnSave');
@@ -142,7 +144,7 @@ const resetModalUtama = async () => {
   modalUtama._element.removeEventListener('shown.bs.modal', addModalUtama);
   modalUtama._element.removeEventListener('shown.bs.modal', editModalUtama);
   modalUtamaBtnSave.removeEventListener('click', saveModalUtama);
-  alertComponent.alertElem.removeEventListener('shown.bs.modal', closeModalUtama);
+  alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalUtama);
   resetInputExceptChoice(modalUtamaForm);
 }
 const getDataUtama = async () => {

@@ -243,19 +243,25 @@ const inputEvent = new Event('input');
 const dgUtama = new DgUtama();
 const alertComponent = new AlertElemBS5('alertComponent1');
 const confirmComponent = new ConfirmElemBS5('confirmComponent1');
-const modalUtama = bootstrap.Modal.getOrCreateInstance('#modalUtama');
+const modalUtama = bootstrap.Modal.getOrCreateInstance('#modalUtama', {
+  keyboard: false
+});
 const modalUtamaForm = document.getElementById('modalUtamaForm');
 const modalUtamaTitle = document.getElementById('modalUtamaTitle');
 const modalUtamaBtnSave = document.getElementById('modalUtamaBtnSave');
 
-const modalDetail = bootstrap.Modal.getOrCreateInstance('#modalDetail');
+const modalDetail = bootstrap.Modal.getOrCreateInstance('#modalDetail', {
+  keyboard: false
+});
 const modalDetailBackdrop = document.getElementById('modalDetailBackdrop');
 const modalDetailForm = document.getElementById('modalDetailForm');
 const modalDetailTitle = document.getElementById('modalDetailTitle');
 const modalDetailBtnSave = document.getElementById('modalDetailBtnSave');
 
 const dgDetail = new DgDetail();
-const modalDetailView = bootstrap.Modal.getOrCreateInstance('#modalDetailView');
+const modalDetailView = bootstrap.Modal.getOrCreateInstance('#modalDetailView', {
+  keyboard: false
+});
 const modalDetailViewKodeMenu = document.getElementById('modalDetailViewKodeMenu');
 const modalDetailViewNameMenu = document.getElementById('modalDetailViewNameMenu');
 const modalDetailViewIndexMenu = document.getElementById('modalDetailViewIndexMenu');
@@ -278,7 +284,7 @@ let saveStateModalUtama = false;
 const resetModalUtama = () => {
   modalUtama._element.removeEventListener('shown.bs.modal', addModalUtama);
   modalUtama._element.removeEventListener('shown.bs.modal', editModalUtama);
-  alertComponent.alertElem.removeEventListener('shown.bs.modal', closeModalUtama);
+  alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalUtama);
   modalUtamaBtnSave.removeEventListener('click', saveModalUtama);
   resetInputExceptChoice(modalUtamaForm);
   link_menu.disabled = true;
@@ -356,7 +362,7 @@ let saveStateModalDetail = false;
 const resetModalDetail = () => {
   modalDetail._element.removeEventListener('shown.bs.modal', addModalDetail);
   modalDetail._element.removeEventListener('shown.bs.modal', editModalDetail);
-  alertComponent.alertElem.removeEventListener('shown.bs.modal', closeModalDetail);
+  alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalDetail);
   modalDetailBtnSave.removeEventListener('click', saveModalDetail);
   resetInputExceptChoice(modalDetailForm);
 }

@@ -22,6 +22,10 @@ switch ($request) {
     echo $classRoute->publishKpiDivisionCorps();
     break;
 
+  case 'changePICDepartment':
+    echo $classRoute->changePIC();
+    break;
+  
   default:
     echo json_encode(
       array(

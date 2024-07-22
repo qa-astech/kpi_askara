@@ -44,6 +44,13 @@
 }
 .btn-zip::before { content: '\f1c6'; font-family: "FontAwesome"; }
 
+.btn-setup{
+  --bs-btn-color: #fff; --bs-btn-bg: var(--bs-primary); --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--bs-primary); --bs-btn-hover-border-color: var(--bs-primary);
+  --bs-btn-active-color: #fff; --bs-btn-active-bg: var(--bs-primary); --bs-btn-active-border-color: var(--bs-primary);
+}
+.btn-setup::before { content: '\f085'; font-family: "FontAwesome"; }
+
 .btn-reload{
   --bs-btn-color: #fff; --bs-btn-bg: #12c9a9; --bs-btn-border-color: #12c9a9;
   --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #12c9a9; --bs-btn-hover-border-color: #12c9a9;
@@ -99,6 +106,13 @@
   --bs-btn-active-color: #fff; --bs-btn-active-bg: #22b54a; --bs-btn-active-border-color: #22b54a;
 }
 .btn-select::before { content: '\f46c'; font-family: "FontAwesome"; font-weight: 900; }
+
+.btn-change-pic{
+  --bs-btn-color: #fff; --bs-btn-bg: #22b54a; --bs-btn-border-color: #22b54a;
+  --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #22b54a; --bs-btn-hover-border-color: #22b54a;
+  --bs-btn-active-color: #fff; --bs-btn-active-bg: #22b54a; --bs-btn-active-border-color: #22b54a;
+}
+.btn-change-pic::before { content: '\f4fe'; font-family: "FontAwesome"; font-weight: 900; }
 
 .dropdown-print{
   --bs-dropdown-border-color: #20B780;

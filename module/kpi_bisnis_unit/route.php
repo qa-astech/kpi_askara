@@ -22,6 +22,10 @@ switch ($request) {
     echo $classRoute->publishKpiBisnisUnit();
     break;
 
+  case 'changePIC':
+    echo $classRoute->changePIC();
+    break;
+  
   default:
     echo json_encode(
       array(

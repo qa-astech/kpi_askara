@@ -7,15 +7,14 @@ import {
 $.fn.dataTable.ext.errMode = 'none';
 const alertComponent = new AlertElemBS5('alertComponent1');
 const confirmComponent = new ConfirmElemBS5('confirmComponent1');
-const dgUtamaYearBtn = document.getElementById('dgUtamaYearBtn');
+
 const btnAddFreshDgUtama = document.getElementById('btnAddFreshDgUtama');
 const btnAddCopyDgUtama = document.getElementById('btnAddCopyDgUtama');
 const btnEditDgUtama = document.getElementById('btnEditDgUtama');
 const btnPublishDgUtama = document.getElementById('btnPublishDgUtama');
-// const btnMenuPrintDgUtama = document.getElementById('btnMenuPrintDgUtama');
-// const btnExcelDetailDgUtama = document.getElementById('btnExcelDetailDgUtama');
-// const btnPDFDetailDgUtama = document.getElementById('btnPDFDetailDgUtama');
 const btnReloadDgUtama = document.getElementById('btnReloadDgUtama');
+
+const dgUtamaYearBtn = document.getElementById('dgUtamaYearBtn');
 const dgUtamaYearInput = document.getElementById('dgUtamaYearInput');
 const dgUtamaYear3 = document.getElementById('dgUtamaYear3');
 const dgUtamaYear2 = document.getElementById('dgUtamaYear2');
@@ -24,17 +23,22 @@ const titleYearKPI = document.getElementById('titleYearKPI');
 const dgUtamaUserEntry = document.getElementById('dgUtamaUserEntry');
 const dgUtamaLastUpdate = document.getElementById('dgUtamaLastUpdate');
 const dgUtamaTbody = document.querySelector('table#dgUtama > tbody');
-const modalEditor = bootstrap.Modal.getOrCreateInstance('#modalEditor');
+
+const modalEditor = bootstrap.Modal.getOrCreateInstance('#modalEditor', {
+  keyboard: false
+});
 const formEditor = document.getElementById('formEditor');
+const dgEditorTbody = document.querySelector('table#dgEditor > tbody');
 const modalEditorTahunKPI = document.getElementById('modalEditorTahunKPI');
 const modalEditorTahunTemplate = document.getElementById('modalEditorTahunTemplate');
-const btnAddNewDgEditor = document.getElementById('btnAddNewDgEditor');
-const btnAddChildDgEditor = document.getElementById('btnAddChildDgEditor');
-const btnDeleteDgEditor = document.getElementById('btnDeleteDgEditor');
 const dgEditorYearBaseline3 = document.getElementById('dgEditorYearBaseline3');
 const dgEditorYearBaseline2 = document.getElementById('dgEditorYearBaseline2');
 const dgEditorYearBaseline1 = document.getElementById('dgEditorYearBaseline1');
+const btnAddNewDgEditor = document.getElementById('btnAddNewDgEditor');
+const btnAddChildDgEditor = document.getElementById('btnAddChildDgEditor');
+const btnDeleteDgEditor = document.getElementById('btnDeleteDgEditor');
 const modalEditorBtnSave = document.getElementById('modalEditorBtnSave');
+
 const modalCopy = bootstrap.Modal.getOrCreateInstance('#modalCopy');
 const modalCopyYearRadio1 = document.getElementById('modalCopyYearRadio1');
 const modalCopyYear1 = document.getElementById('modalCopyYear1');
@@ -43,6 +47,7 @@ const modalCopyYear2 = document.getElementById('modalCopyYear2');
 const modalCopyYearRadio3 = document.getElementById('modalCopyYearRadio3');
 const modalCopyYear3 = document.getElementById('modalCopyYear3');
 const modalCopyBtnSave = document.getElementById('modalCopyBtnSave');
+
 const modalAddFresh = bootstrap.Modal.getOrCreateInstance('#modalAddFresh');
 const modalAddFreshBackdrop = document.getElementById('modalAddFreshBackdrop');
 const modalAddFreshBtnSave = document.getElementById('modalAddFreshBtnSave');
@@ -80,15 +85,13 @@ let funBtnAddFreshDgUtama = () => {};
 let funBtnAddCopyDgUtama = () => {};
 let funBtnEditDgUtama = () => {};
 let funBtnPublishDgUtama = () => {};
-// let funBtnExcelDetailDgUtama = () => {};
-// let funBtnPDFDetailDgUtama = () => {};
-let funModalEditorBtnSave = async () => {};
 const funBtnReloadDgUtama = async () => {
   if (yearProgress) {
     await funViewKPIYear(yearProgress);
   }
 }
-let openModalEditor = async () => {}
+let funModalEditorBtnSave = async () => {};
+let openModalEditor = async () => {};
 
 let getResponsePolaritas;
 const getJsonPolaritas = async () => {
@@ -142,12 +145,48 @@ const getKpiNow = async (year, copyTemplate = false) => {
   });
 }
 
+const insertingTdEditor = async (data, funInsert, addDataEditor, indexParent = null) => {
+  const elemTr = document.createElement('tr');
+  elemTr.dataset.indexRow = indexRowEditor;
+  elemTr.dataset.indexParent = !IsEmpty(indexParent) ? indexParent : data.index_sobject;
+  elemTr.dataset.rowJson = JSON.stringify(data);
+  const elemTd = `
+    <input type="hidden" name="id_sobject[${indexRowEditor}]" id="id_sobject_${indexRowEditor}">
+    <input type="hidden" name="kpicorp_id[${indexRowEditor}]" id="kpicorp_id_${indexRowEditor}">
+    <td class="text-center" style="white-space: nowrap;">${data.name_perspective}</td>
+    <td style="white-space: nowrap;">${data.text_sobject}</td>
+    <td><input type="text" class="form-control index_kpi_corp" name="index_kpi_corp[${indexRowEditor}]" id="index_kpi_corp_${indexRowEditor}" readonly></td>
+    <td><textarea class="form-control name_kpi_corp" name="name_kpi_corp[${indexRowEditor}]" id="name_kpi_corp_${indexRowEditor}" style="width: 300px; height: 2.375rem;"></textarea></td>
+    <td><textarea class="form-control define_kpi_corp" name="define_kpi_corp[${indexRowEditor}]" id="define_kpi_corp_${indexRowEditor}" style="width: 300px; height: 2.375rem;"></textarea></td>
+    <td><input type="text" class="form-control control_cek_kpi_corp" name="control_cek_kpi_corp[${indexRowEditor}]" id="control_cek_kpi_corp_${indexRowEditor}" style="width: 220px; height: 2.375rem;"></td>
+    <td class="text-center">${!IsEmpty(data.baseline_3) ? data.baseline_3 : '-'}</td>
+    <td class="text-center">${!IsEmpty(data.baseline_2) ? data.baseline_2 : '-'}</td>
+    <td class="text-center">${!IsEmpty(data.baseline_1) ? data.baseline_1 : '-'}</td>
+    <td><input type="text" class="form-control target_kpi_corp" name="target_kpi_corp[${indexRowEditor}]" id="target_kpi_corp_${indexRowEditor}" style="width: 240px;" inputmode="numeric"></td>
+    <td><select class="form-select satuan_kpi_corp" name="satuan_kpi_corp[${indexRowEditor}]" id="satuan_kpi_corp_${indexRowEditor}" data-placeholder="Masukan satuan..." style="width: 150px;"></select></td>
+    <td><select class="form-select formula_kpi_corp" name="formula_kpi_corp[${indexRowEditor}]" id="formula_kpi_corp_${indexRowEditor}" data-placeholder="Masukan formula..." style="width: 150px;"></select></td>
+    <td><select class="form-select polaritas_kpi_corp" name="polaritas_kpi_corp[${indexRowEditor}]" id="polaritas_kpi_corp_${indexRowEditor}" data-placeholder="Masukan polaritas..." style="width: 120px;"></select></td>
+  `;
+  elemTr.innerHTML = elemTd;
+  elemTr.addEventListener('click', (e) => {
+    if (e.target.localName !== 'input' && e.target.localName !== 'textarea' && e.target.localName !== 'span') {
+      elemTr.classList.contains('selected') ? elemTr.classList.remove('selected') : elemTr.classList.add('selected');
+      removeSelectEditor(elemTr);
+    }
+  });
+  await funInsert(elemTr, indexRowEditor);
+  const indexRowNow = indexRowEditor;
+  indexRowEditor++;
+  await addFunSelectEditor(indexRowNow);
+  await addDataEditor(indexRowNow);
+  await addIndexingKPI(elemTr);
+}
+
 const insertTdEditor = async (jsonData) => {
   for (const objectData of jsonData) {
     objectData.terbit_kpicorp = objectData.status_copy === 'copy' ? 'f' : objectData.terbit_kpicorp;
     await insertingTdEditor(objectData, async (element, index) => {
-      const tbodyElem = document.querySelector('table#dgEditor > tbody');
-      tbodyElem.append(element);
+      dgEditorTbody.append(element);
     }, async (index) => {
 
       const id_sobject = document.getElementById('id_sobject_' + index);
@@ -222,20 +261,17 @@ const funViewKPIYear = async (year) => {
     dgUtamaYear3.innerText = year - 3;
     dgUtamaYear2.innerText = year - 2;
     dgUtamaYear1.innerText = year - 1;
+
     btnAddFreshDgUtama.removeEventListener('click', funBtnAddFreshDgUtama);
     btnAddCopyDgUtama.removeEventListener('click', funBtnAddCopyDgUtama);
     btnEditDgUtama.removeEventListener('click', funBtnEditDgUtama);
     btnPublishDgUtama.removeEventListener('click', funBtnPublishDgUtama);
-    // btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
-    // btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
     btnReloadDgUtama.removeEventListener('click', funBtnReloadDgUtama);
+
     btnAddFreshDgUtama.disabled = false;
     btnAddCopyDgUtama.disabled = false;
     btnEditDgUtama.disabled = false;
     btnPublishDgUtama.disabled = false;
-    // btnMenuPrintDgUtama.disabled = false;
-    // btnExcelDetailDgUtama.disabled = false;
-    // btnPDFDetailDgUtama.disabled = false;
     btnReloadDgUtama.disabled = false;
     dgUtamaTbody.innerHTML = null;
     
@@ -287,7 +323,7 @@ const funViewKPIYear = async (year) => {
         }
         funModalEditorBtnSave = async () => {
           modalEditorBtnSave.disabled = true;
-          alertComponent.alertElem.removeEventListener('shown.bs.modal', closeModalEditor);
+          alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalEditor);
           if (saveStateformEditor === false) {
             saveStateformEditor = true;
             try {
@@ -308,11 +344,10 @@ const funViewKPIYear = async (year) => {
         modalEditorBtnSave.addEventListener('click', funModalEditorBtnSave);
         modalEditor.show();
       }
-      // funBtnExcelDetailDgUtama = async (e) => {}
-      // funBtnPDFDetailDgUtama = async (e) => {}
+
       funBtnPublishDgUtama = async (e) => {
         confirmComponent.setupconfirm('Terbit KPI', 'bg-primary', 'text-white', 'Anda yakin ingin terbitkan KPI ini sekarang?');
-        alertComponent.alertElem.removeEventListener('shown.bs.modal', closeAlertComp);
+        alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeAlertComp);
         if (!IsEmpty(yearProgress)) {
           confirmComponent.btnConfirm.addEventListener('click', async () => {
             try {
@@ -328,14 +363,12 @@ const funViewKPIYear = async (year) => {
           confirmComponent.confirmModal.show();
         }
       }
-
+      
       btnEditDgUtama.addEventListener('click', funBtnEditDgUtama);
-      // btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
-      // btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
       btnPublishDgUtama.addEventListener('click', funBtnPublishDgUtama);
-
       btnAddFreshDgUtama.disabled = true;
       btnAddCopyDgUtama.disabled = true;
+
     } else {
       funBtnAddFreshDgUtama = async (e) => {
         await resetModalEditor();
@@ -345,7 +378,7 @@ const funViewKPIYear = async (year) => {
         }
         funModalEditorBtnSave = async () => {
           modalEditorBtnSave.disabled = true;
-          alertComponent.alertElem.removeEventListener('shown.bs.modal', closeModalEditor);
+          alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalEditor);
           if (saveStateformEditor === false) {
             saveStateformEditor = true;
             try {
@@ -369,17 +402,12 @@ const funViewKPIYear = async (year) => {
         modalCopy.show();
       }
       funBtnEditDgUtama = async (e) => {}
-      // funBtnExcelDetailDgUtama = async (e) => {}
-      // funBtnPDFDetailDgUtama = async (e) => {}
       funBtnPublishDgUtama = async (e) => {}
 
       btnAddFreshDgUtama.addEventListener('click', funBtnAddFreshDgUtama);
       btnAddCopyDgUtama.addEventListener('click', funBtnAddCopyDgUtama);
 
       btnEditDgUtama.disabled = true;
-      // btnMenuPrintDgUtama.disabled = true;
-      // btnExcelDetailDgUtama.disabled = true;
-      // btnPDFDetailDgUtama.disabled = true;
       btnPublishDgUtama.disabled = true;
     }
 
@@ -394,7 +422,6 @@ const funViewKPIYear = async (year) => {
 }
 
 const resetModalEditor = async () => {
-  const tbody = document.querySelector('table#dgEditor tbody');
   modalEditorTahunTemplate.parentElement.classList.remove('d-none');
   modalEditorTahunKPI.innerText = null;
   modalEditorTahunTemplate.innerText = null;
@@ -403,11 +430,12 @@ const resetModalEditor = async () => {
   dgEditorYearBaseline1.innerText = null;
   indexRowEditor = 0;
   deleteDataKPI = [];
-  tbody.innerHTML = null;
+  dgEditorTbody.innerHTML = null;
   modalEditorBtnSave.removeEventListener('click', funModalEditorBtnSave);
   modalEditor._element.removeEventListener('shown.bs.modal', openModalEditor);
-  // alertComponent.alertElem.removeEventListener('shown.bs.modal', closeModalEditor);
+  // alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalEditor);
 }
+
 const defaultOpenModalEditor = () => {
   modalEditorTahunKPI.innerText = yearProgress;
   dgEditorYearBaseline3.innerText = yearProgress - 3;
@@ -420,42 +448,6 @@ const closeModalEditor = async () => {
   funViewKPIYear(yearProgress);
 }
 
-const insertingTdEditor = async (data, funInsert, addDataEditor, indexParent = null) => {
-  const elemTr = document.createElement('tr');
-  elemTr.dataset.indexRow = indexRowEditor;
-  elemTr.dataset.indexParent = !IsEmpty(indexParent) ? indexParent : data.index_sobject;
-  elemTr.dataset.rowJson = JSON.stringify(data);
-  const elemTd = `
-    <input type="hidden" name="id_sobject[${indexRowEditor}]" id="id_sobject_${indexRowEditor}">
-    <input type="hidden" name="kpicorp_id[${indexRowEditor}]" id="kpicorp_id_${indexRowEditor}">
-    <td class="text-center" style="white-space: nowrap;">${data.name_perspective}</td>
-    <td style="white-space: nowrap;">${data.text_sobject}</td>
-    <td><input type="text" class="form-control index_kpi_corp" name="index_kpi_corp[${indexRowEditor}]" id="index_kpi_corp_${indexRowEditor}" readonly></td>
-    <td><textarea class="form-control name_kpi_corp" name="name_kpi_corp[${indexRowEditor}]" id="name_kpi_corp_${indexRowEditor}" style="width: 300px; height: 2.375rem;"></textarea></td>
-    <td><textarea class="form-control define_kpi_corp" name="define_kpi_corp[${indexRowEditor}]" id="define_kpi_corp_${indexRowEditor}" style="width: 300px; height: 2.375rem;"></textarea></td>
-    <td><input type="text" class="form-control control_cek_kpi_corp" name="control_cek_kpi_corp[${indexRowEditor}]" id="control_cek_kpi_corp_${indexRowEditor}" style="width: 220px; height: 2.375rem;"></td>
-    <td class="text-center">${!IsEmpty(data.baseline_3) ? data.baseline_3 : '-'}</td>
-    <td class="text-center">${!IsEmpty(data.baseline_2) ? data.baseline_2 : '-'}</td>
-    <td class="text-center">${!IsEmpty(data.baseline_1) ? data.baseline_1 : '-'}</td>
-    <td><input type="text" class="form-control target_kpi_corp" name="target_kpi_corp[${indexRowEditor}]" id="target_kpi_corp_${indexRowEditor}" style="width: 240px;" inputmode="numeric"></td>
-    <td><select class="form-select satuan_kpi_corp" name="satuan_kpi_corp[${indexRowEditor}]" id="satuan_kpi_corp_${indexRowEditor}" data-placeholder="Masukan satuan..." style="width: 150px;"></select></td>
-    <td><select class="form-select formula_kpi_corp" name="formula_kpi_corp[${indexRowEditor}]" id="formula_kpi_corp_${indexRowEditor}" data-placeholder="Masukan formula..." style="width: 150px;"></select></td>
-    <td><select class="form-select polaritas_kpi_corp" name="polaritas_kpi_corp[${indexRowEditor}]" id="polaritas_kpi_corp_${indexRowEditor}" data-placeholder="Masukan polaritas..." style="width: 120px;"></select></td>
-  `;
-  elemTr.innerHTML = elemTd;
-  elemTr.addEventListener('click', (e) => {
-    if (e.target.localName !== 'input' && e.target.localName !== 'textarea' && e.target.localName !== 'span') {
-      elemTr.classList.contains('selected') ? elemTr.classList.remove('selected') : elemTr.classList.add('selected');
-      removeSelectEditor(elemTr);
-    }
-  });
-  await funInsert(elemTr, indexRowEditor);
-  const indexRowNow = indexRowEditor;
-  indexRowEditor++;
-  await addFunSelectEditor(indexRowNow);
-  await addDataEditor(indexRowNow);
-  await addIndexingKPI(elemTr);
-}
 const addFunSelectEditor = async (index) => {
   $(`#satuan_kpi_corp_${index}`).select2({
     theme: "bootstrap-5",
@@ -546,6 +538,7 @@ const addFunSelectEditor = async (index) => {
   });
 
 }
+
 const addIndexingKPI = async (elemTr) => {
   const indexRow = parseInt(elemTr.dataset.indexRow);
   const jsonData = JSON.parse(elemTr.dataset.rowJson);
@@ -573,17 +566,12 @@ const removeSelectEditor = (elemTarget) => {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // const sendDataPolaritas = new URLSearchParams();
-  // getResponsePolaritas = await sendViaFetchForm('../../json/polaritas.json', sendDataPolaritas);
   getResponsePolaritas = await getJsonPolaritas();
 
   btnAddFreshDgUtama.disabled = true;
   btnAddCopyDgUtama.disabled = true;
   btnEditDgUtama.disabled = true;
   btnPublishDgUtama.disabled = true;
-  // btnMenuPrintDgUtama.disabled = true;
-  // btnExcelDetailDgUtama.disabled = true;
-  // btnPDFDetailDgUtama.disabled = true;
   btnReloadDgUtama.disabled = true;
 
   dgUtamaYearInput.value = null;
@@ -594,6 +582,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   stateYearInput = null;
+
   dgUtamaYearInput.addEventListener('keyup', async (e) => {
     if (e.type === 'keyup' && e.key === 'Enter') {
       yearProgress = dgUtamaYearInput.value;
@@ -622,10 +611,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     modalAddFreshBackdrop.classList.remove('d-none');
     $('#strategi_object').val(null).trigger('change');
   });
+
   modalAddFresh._element.addEventListener('hide.bs.modal', () => {
     modalAddFreshBackdrop.classList.remove('show');
     if (!modalAddFreshBackdrop.classList.contains('d-none')) modalAddFreshBackdrop.classList.add('d-none');
   });
+
   btnAddNewDgEditor.addEventListener('click', (e) => {
     modalAddFresh.show();
   });
@@ -746,7 +737,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     await insertingTdEditor(jsonData,
       async (element, index) => {
-        const tbodyElem = document.querySelector('table#dgEditor > tbody');
         const trElem = document.querySelectorAll('table#dgEditor > tbody tr');
         const elementSame = [];
         const elementSmall = [];
@@ -779,10 +769,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           } else if (elementSmall.length > 0) {
             elementSmall[elementSmall.length - 1].before(element);
           } else {
-            tbodyElem.append(element);
+            dgEditorTbody.append(element);
           }
         } else {
-          tbodyElem.append(element);
+          dgEditorTbody.append(element);
         }
       }, async (index) => {
         const id_sobject = document.getElementById('id_sobject_' + index);
@@ -812,7 +802,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     funModalEditorBtnSave = async () => {
       modalEditorBtnSave.disabled = true;
-      alertComponent.alertElem.removeEventListener('shown.bs.modal', closeModalEditor);
+      alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalEditor);
       if (saveStateformEditor === false) {
         saveStateformEditor = true;
         try {

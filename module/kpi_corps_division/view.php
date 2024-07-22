@@ -39,28 +39,12 @@
           <button type="button" id="btnEditDgUtama" class="btn rounded btn-sm btn-edit">
             <span class="d-inline-block ps-1">Ubah</span>
           </button>
+          <button type="button" id="btnChangePIC" class="btn rounded btn-sm btn-change-pic">
+            <span class="d-inline-block ps-1">Ubah User PIC</span>
+          </button>
           <button type="button" id="btnPublishDgUtama" class="btn rounded btn-sm btn-publish">
             <span class="d-inline-block ps-1">Terbit KPI</span>
           </button>
-          <!-- <div class="btn-group" role="group" aria-label="Button Print">
-            <button type="button" id="btnMenuPrintDgUtama" class="btn btn-sm btn-print dropdown-toggle" data-bs-toggle="dropdown" data-bs-target="#menuPrintDgUtama" aria-expanded="false">
-              <span class="d-inline-block ps-1">Cetak</span>
-            </button>
-            <ul class="dropdown-menu dropdown-print" id="menuPrintDgUtama">
-              <li>
-                <button type="button" class="dropdown-item" id="btnExcelDetailDgUtama">
-                  <i class="fa-solid fa-file-excel"></i>
-                  <span class="d-inline-block ps-1">Detail Excel</span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="dropdown-item" id="btnPDFDetailDgUtama">
-                  <i class="fa-solid fa-file-pdf"></i>
-                  <span class="d-inline-block ps-1">Detail PDF</span>
-                </button>
-              </li>
-            </ul>
-          </div> -->
           <button type="button" id="btnReloadDgUtama" class="btn rounded btn-sm btn-reload"></button>
         </div>
       </div>
@@ -223,6 +207,58 @@
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-sm btn-save" id="modalAddFreshBtnSave">
             <span class="ps-1">Input Data</span>
+          </button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+  <!-- Modal Change PIC -->
+  <div class="modal fade" id="modalChangeUser" tabindex="-1" role="dialog" aria-labelledby="modalChangeUser" aria-hidden="true" style="z-index: 2000;">
+	  <div class="modal-dialog modal-fullscreen" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header bg-dark">
+	        <h5 class="modal-title fw-bold text-white">Ubah PIC KPI</h5>
+	        <button type="button" class="btn btn-x" data-bs-dismiss="modal" data-bs-target="#modalChangeUser" aria-label="Close"></button>
+	      </div>
+	      <div class="modal-body">
+          <table class="table table-borderless w-100 nowrap table-information">
+            <tbody>
+              <tr>
+                <th class="ps-0" style="white-space: nowrap;">Tahun KPI</th>
+                <th class="px-1">:</th>
+                <td id="modalChangeUserTahunKPI"></td>
+              </tr>
+              <tr>
+                <th class="ps-0" style="white-space: nowrap;">Departemen</th>
+                <th class="px-1">:</th>
+                <td id="modalChangeUserDivisionCorpsKPI"></td>
+              </tr>
+
+            </tbody>
+          </table>
+          <form enctype="multipart/form-data" id="formChangeUser">
+            <table id="dgChangeUser" class="table table-striped table-bordered w-100 nowrap dg-editor">
+              <thead class="table-dark">
+                <tr>
+                  <th class="align-middle text-center">Perspektif</th>
+                  <th class="align-middle text-center">Strategi Objektif</th>
+                  <th class="align-middle text-center">Layout KPI</th>
+                  <th class="align-middle text-center">Ketersediaan Data <span class="text-danger fw-bold">*</span></th>
+                  <th class="align-middle text-center">User PIC <span class="text-danger fw-bold">*</span></th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </form>
+	      </div>
+	      <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-keluar" data-bs-dismiss="modal" data-bs-target="#modalChangeUser">
+            <span class="ps-1">Keluar</span>
+          </button>
+	        <button type="button" class="btn btn-sm btn-save" id="modalChangeUserBtnSave">
+            <span class="ps-1">Simpan</span>
           </button>
 	      </div>
 	    </div>

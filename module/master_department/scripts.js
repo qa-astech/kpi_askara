@@ -236,19 +236,25 @@ const accessModule = {
 const dgUtama = new DgUtama();
 const alertComponent = new AlertElemBS5('alertComponent1');
 const confirmComponent = new ConfirmElemBS5('confirmComponent1');
-const modalUtama = bootstrap.Modal.getOrCreateInstance('#modalUtama');
+const modalUtama = bootstrap.Modal.getOrCreateInstance('#modalUtama', {
+  keyboard: false
+});
 const modalUtamaForm = document.getElementById('modalUtamaForm');
 const modalUtamaTitle = document.getElementById('modalUtamaTitle');
 const modalUtamaBtnSave = document.getElementById('modalUtamaBtnSave');
 
-const modalDivisi = bootstrap.Modal.getOrCreateInstance('#modalDivisi');
+const modalDivisi = bootstrap.Modal.getOrCreateInstance('#modalDivisi', {
+  keyboard: false
+});
 const modalDivisiBackdrop = document.getElementById('modalDivisiBackdrop');
 const modalDivisiForm = document.getElementById('modalDivisiForm');
 const modalDivisiTitle = document.getElementById('modalDivisiTitle');
 const modalDivisiBtnSave = document.getElementById('modalDivisiBtnSave');
 
 const dgDivisi = new DgDivisi();
-const modalDivisiView = bootstrap.Modal.getOrCreateInstance('#modalDivisiView');
+const modalDivisiView = bootstrap.Modal.getOrCreateInstance('#modalDivisiView', {
+  keyboard: false
+});
 const modalDivisiViewIdDepartment = document.getElementById('modalDivisiViewIdDepartment');
 const modalDivisiViewNameDepartment = document.getElementById('modalDivisiViewNameDepartment');
 const modalDivisiViewAliasDepartment = document.getElementById('modalDivisiViewAliasDepartment');
@@ -265,7 +271,7 @@ let saveStateModalUtama = false;
 const resetModalUtama = () => {
   modalUtama._element.removeEventListener('shown.bs.modal', addModalUtama);
   modalUtama._element.removeEventListener('shown.bs.modal', editModalUtama);
-  alertComponent.alertElem.removeEventListener('shown.bs.modal', closeModalUtama);
+  alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalUtama);
   modalUtamaBtnSave.removeEventListener('click', saveModalUtama);
   resetInputExceptChoice(modalUtamaForm);
 }
@@ -332,7 +338,7 @@ let saveStateModalDivisi = false;
 const resetModalDivisi = () => {
   modalDivisi._element.removeEventListener('shown.bs.modal', addModalDivisi);
   modalDivisi._element.removeEventListener('shown.bs.modal', editModalDivisi);
-  alertComponent.alertElem.removeEventListener('shown.bs.modal', closeModalDivisi);
+  alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalDivisi);
   modalDivisiBtnSave.removeEventListener('click', saveModalDivisi);
   resetInputExceptChoice(modalDivisiForm);
 }

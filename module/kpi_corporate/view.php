@@ -35,25 +35,6 @@
           <button type="button" id="btnPublishDgUtama" class="btn rounded btn-sm btn-publish">
             <span class="d-inline-block ps-1">Terbit KPI</span>
           </button>
-          <!-- <div class="btn-group" role="group" aria-label="Button Print">
-            <button type="button" id="btnMenuPrintDgUtama" class="btn btn-sm btn-print dropdown-toggle" data-bs-toggle="dropdown" data-bs-target="#menuPrintDgUtama" aria-expanded="false">
-              <span class="d-inline-block ps-1">Cetak</span>
-            </button>
-            <ul class="dropdown-menu dropdown-print" id="menuPrintDgUtama">
-              <li>
-                <button type="button" class="dropdown-item" id="btnExcelDetailDgUtama">
-                  <i class="fa-solid fa-file-excel"></i>
-                  <span class="d-inline-block ps-1">Detail Excel</span>
-                </button>
-              </li>
-              <li>
-                <button type="button" class="dropdown-item" id="btnPDFDetailDgUtama">
-                  <i class="fa-solid fa-file-pdf"></i>
-                  <span class="d-inline-block ps-1">Detail PDF</span>
-                </button>
-              </li>
-            </ul>
-          </div> -->
           <button type="button" id="btnReloadDgUtama" class="btn rounded btn-sm btn-reload"></button>
         </div>
       </div>
@@ -149,34 +130,32 @@
               </button>
             </div>
           </div>
-          <!-- <div class="container-fluid px-0" style="overflow: auto;"> -->
-            <form enctype="multipart/form-data" id="formEditor">
-              <table id="dgEditor" class="table table-striped table-bordered w-100 nowrap dg-editor">
-                <thead class="table-dark">
-                  <tr>
-                    <th class="align-middle text-center" rowspan="2">Perspektif</th>
-                    <th class="align-middle text-center" rowspan="2">Strategi Objektif<br><small class="text-danger fw-bold">(unik - KPI)</small></th>
-                    <th class="align-middle text-center" rowspan="2">Index<br><small class="text-danger fw-bold">(auto | unik - KPI)</small></th>
-                    <th class="align-middle text-center" rowspan="2">Nama KPI <span class="text-danger fw-bold"> *</span></th>
-                    <th class="align-middle text-center" rowspan="2">Definisi KPI <span class="text-danger fw-bold">*</span></th>
-                    <th class="align-middle text-center" rowspan="2">Control Cek <span class="text-danger fw-bold">*</span></th>
-                    <th class="align-middle text-center" colspan="3">Baseline</th>
-                    <th class="align-middle text-center" rowspan="2">Target Korporat <span class="text-danger fw-bold">*</span></th>
-                    <th class="align-middle text-center" rowspan="2">Satuan <span class="text-danger fw-bold">*</span></th>
-                    <th class="align-middle text-center" rowspan="2">Formula <span class="text-danger fw-bold">*</span></th>
-                    <th class="align-middle text-center" rowspan="2">Polaritas <span class="text-danger fw-bold">*</span></th>
-                  </tr>
-                  <tr>
-                    <th class="align-middle text-center" id="dgEditorYearBaseline3"></th>
-                    <th class="align-middle text-center" id="dgEditorYearBaseline2"></th>
-                    <th class="align-middle text-center" id="dgEditorYearBaseline1"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </form>
-          <!-- </div> -->
+          <form enctype="multipart/form-data" id="formEditor">
+            <table id="dgEditor" class="table table-striped table-bordered w-100 nowrap dg-editor">
+              <thead class="table-dark">
+                <tr>
+                  <th class="align-middle text-center" rowspan="2">Perspektif</th>
+                  <th class="align-middle text-center" rowspan="2">Strategi Objektif<br><small class="text-danger fw-bold">(unik - KPI)</small></th>
+                  <th class="align-middle text-center" rowspan="2">Index<br><small class="text-danger fw-bold">(auto | unik - KPI)</small></th>
+                  <th class="align-middle text-center" rowspan="2">Nama KPI <span class="text-danger fw-bold"> *</span></th>
+                  <th class="align-middle text-center" rowspan="2">Definisi KPI <span class="text-danger fw-bold">*</span></th>
+                  <th class="align-middle text-center" rowspan="2">Control Cek <span class="text-danger fw-bold">*</span></th>
+                  <th class="align-middle text-center" colspan="3">Baseline</th>
+                  <th class="align-middle text-center" rowspan="2">Target Korporat <span class="text-danger fw-bold">*</span></th>
+                  <th class="align-middle text-center" rowspan="2">Satuan <span class="text-danger fw-bold">*</span></th>
+                  <th class="align-middle text-center" rowspan="2">Formula <span class="text-danger fw-bold">*</span></th>
+                  <th class="align-middle text-center" rowspan="2">Polaritas <span class="text-danger fw-bold">*</span></th>
+                </tr>
+                <tr>
+                  <th class="align-middle text-center" id="dgEditorYearBaseline3"></th>
+                  <th class="align-middle text-center" id="dgEditorYearBaseline2"></th>
+                  <th class="align-middle text-center" id="dgEditorYearBaseline1"></th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </form>
 	      </div>
 	      <div class="modal-footer">
           <button type="button" class="btn btn-sm btn-keluar" data-bs-dismiss="modal" data-bs-target="#modalEditor">

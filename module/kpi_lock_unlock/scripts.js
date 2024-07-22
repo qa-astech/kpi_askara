@@ -121,7 +121,7 @@ const resetProgram = (e) => {
   dgUtamaYearInput.disabled = false;
   $('#dgUtamaDateInput1')[0].disabled = false;
   $('#dgUtamaDateInput2')[0].disabled = false;
-  alertComponent.alertElem.removeEventListener('shown.bs.modal', resetProgram);
+  alertComponent.alertElem.removeEventListener('hidden.bs.modal', resetProgram);
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -304,7 +304,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           monthAcro.forEach(element => {
             const filteringArr = dataKpi.target_kpi.filter((objValue) => objValue.month === element.number)[0];
             if (filteringArr) {
-              console.log(filteringArr);
               trElem.innerHTML += `
                 <td data-month="${element.number}">
                   <div class="d-flex justify-content-center align-items-center">

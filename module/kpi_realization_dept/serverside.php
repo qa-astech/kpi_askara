@@ -88,6 +88,7 @@ class kpi_realization_dept extends database {
         'idTargetMonth' => $valueTarget['id_kpidept_target'],
         'idRealisasi' => $valueTarget['id_tbl_realisasi'],
         'lockStatus' => $valueTarget['lock_status'],
+        'remarks' => $valueTarget['remarks'],
         'typeTarget' => $type_target
       );
     } elseif ($type_target == "KPI Division Korporat") {
@@ -102,6 +103,7 @@ class kpi_realization_dept extends database {
         'idTargetMonth' => $valueTarget['id_kpidivcorp_target'],
         'idRealisasi' => $valueTarget['id_tbl_realisasi'],
         'lockStatus' => $valueTarget['lock_status'],
+        'remarks' => $valueTarget['remarks'],
         'typeTarget' => $type_target
       );
     }
@@ -152,7 +154,7 @@ class kpi_realization_dept extends database {
         $response = $cleanWordPDO->cleaningArrayHtml($response);
         if ($typeKPI == "KPI Department") {
           $cek_target = "SELECT a.*,
-          b.value_kpidept_real realisasi, b.file_kpidept_real file_realisasi, b.id_kpidept_real id_tbl_realisasi,
+          b.value_kpidept_real realisasi, b.file_kpidept_real file_realisasi, b.id_kpidept_real id_tbl_realisasi, b.remarks,
           b.user_entry entry_realisasi, b.last_update time_realisasi, d.fullname_users fullname_realisasi
           FROM kpi_department_target a
           LEFT JOIN kpi_department_realization b on b.id_kpidept_target = a.id_kpidept_target
@@ -172,7 +174,7 @@ class kpi_realization_dept extends database {
 
         } elseif ($typeKPI == "KPI Division Korporat") {
           $cek_target = "SELECT a.*,
-          b.value_kpidivcorp_real realisasi, b.file_kpidivcorp_real file_realisasi, b.id_kpidivcorp_real id_tbl_realisasi,
+          b.value_kpidivcorp_real realisasi, b.file_kpidivcorp_real file_realisasi, b.id_kpidivcorp_real id_tbl_realisasi, b.remarks,
           b.user_entry entry_realisasi, b.last_update time_realisasi, d.fullname_users fullname_realisasi
           FROM kpi_divcorp_target a
           LEFT JOIN kpi_divcorp_realization b on b.id_kpidivcorp_target = a.id_kpidivcorp_target
@@ -240,10 +242,10 @@ class kpi_realization_dept extends database {
       return isset($value) && $value !== null && strval($value) !== "" && in_array($key, $keyFilterKpi);
     }, ARRAY_FILTER_USE_BOTH) : array();
     $remarksFilter = !empty($filterKpi) ? array_filter($_POST['remarks_kpi'], function($value, $key) use ($keyFilterKpi) {
-      return isset($value) && $value !== null && strval($value) !== "" && in_array($key, $keyFilterKpi);
+      return isset($value) && $value !== null && in_array($key, $keyFilterKpi);
     }, ARRAY_FILTER_USE_BOTH) : array();
     $isRealisasiLessThanTarget = !empty($filterKpi) ? array_filter($_POST['isRealisasiLessThanTarget'], function($value, $key) use ($keyFilterKpi) {
-      return isset($value) && $value !== null && strval($value) !== "" && in_array($key, $keyFilterKpi);
+      return isset($value) && $value !== null && in_array($key, $keyFilterKpi);
     }, ARRAY_FILTER_USE_BOTH) : array();
     $arrKeys = !empty($filterKpi) ? array_keys($arrFilter) : array();
     $arrMapKeys = !empty($arrKeys) ? array_map(function($value) {
@@ -292,8 +294,6 @@ class kpi_realization_dept extends database {
     global $cleanWord, $upload;
     try {
 
-      // print_r($_POST);
-
       $department = $this->destructSendKpi('KPI Department');
       $divisionKorporat = $this->destructSendKpi('KPI Division Korporat');
       $old_file_evidence = array();
@@ -327,12 +327,10 @@ class kpi_realization_dept extends database {
       ]);
 
       $insert = "";
-      print_r($mergeClean);
-      die();
       foreach ($mergeClean as $key => $value) {
 
         if (!empty($value['id_realisasi'])) {
-          $id_realisasi = $cleanWord->textCk(@$value['id_realisasi'], true, 'trim');
+          $id_realisasi = $cleanWord->textCk(@$value['id_realisasi'], true, 'trim', null, null, null, 'id_realisasi');
         } elseif ($value['type_table'] == 'kpi_department_realization') {
           $id_realisasi = "KDPREAL-" . $this->year . "-" . str_pad($getPkey_department[$count_id_real_department]['code'], 5, '0', STR_PAD_LEFT);
           $count_id_real_department++;
@@ -355,8 +353,8 @@ class kpi_realization_dept extends database {
           $file_evidence = '{' . rtrim($file_evidence, ',') . '}';
         }
 
-        $realisasi = $cleanWord->numberCk(@$value['realisasi'], true, 'text', true);
-        $remarks = $cleanWord->numberCk(@$value['remarks'], true, 'text', true);
+        $realisasi = $cleanWord->numberCk(@$value['realisasi'], true, 'text', true, 'number', null, null, null, null, true, ',', '.', '<b>Angka Realisasi</b>');
+        $remarks = $cleanWord->textCk(@$value['remarks'], $value['isRealisasiLessThanTarget'] === 'true', 'normal', "''", true, '<b>Corrective Action</b>');
         if (!empty($value['id_realisasi'])) {
           if ($file_evidence !== "{}") {
             $old_file_evidence = array_merge($old_file_evidence, $value['file_realisasi']);
@@ -366,29 +364,36 @@ class kpi_realization_dept extends database {
           }
           $insert .= "UPDATE $value[type_table] SET
           ". $this->columnTable[$value['type_table']][2] ." = $realisasi,
+          ". $this->columnTable[$value['type_table']][4] ." = {$remarks},
           $sql_file_evidence
-          user_entry = $_SESSION[setupuser_kpi_askara],
+          user_entry = '$_SESSION[setupuser_kpi_askara]',
           last_update = '".$this->last_update."',
           flag = 'u'
           where ".$this->columnTable[$value['type_table']][0]." = '$id_realisasi';
           ";
         } else {
-          $id_target = $cleanWord->textCk(@$value['id_target'], true, 'normal');
+          $id_target = $cleanWord->textCk(@$value['id_target'], true, 'normal', null, null, '<b>Target ID</b>');
           $insert .= "INSERT INTO $value[type_table] (
             ".$this->columnTable[$value['type_table']][0].",
             ".$this->columnTable[$value['type_table']][1].",
             ".$this->columnTable[$value['type_table']][2].",
             ".$this->columnTable[$value['type_table']][3].",
+            ".$this->columnTable[$value['type_table']][4].",
             user_entry,
             last_update
           ) values (
-            '$id_realisasi', {$id_target}, $realisasi, '$file_evidence', '$_SESSION[setupuser_kpi_askara]', '".$this->last_update."'
+            '$id_realisasi',
+            {$id_target},
+            $realisasi,
+            '$file_evidence',
+            {$remarks},
+            '$_SESSION[setupuser_kpi_askara]',
+            '".$this->last_update."'
           );
           ";
         }
 
       }
-
       $this->sendQueryWithImg($this->konek_sita_db(), $insert, $old_file_evidence, 'evidence/');
       return json_encode(
         array(

@@ -9,29 +9,43 @@ const elemenMonth = document.querySelectorAll('tr.month-target');
 
 const alertComponent = new AlertElemBS5('alertComponent1');
 const confirmComponent = new ConfirmElemBS5('confirmComponent1');
+
 const dgUtamaTbody = document.querySelector('table#dgUtama > tbody');
 const dgUtamaYearInput = document.getElementById('dgUtamaYearInput');
 const dgUtamaYearBtn = document.getElementById('dgUtamaYearBtn');
 const dgUtamaUserEntry = document.getElementById('dgUtamaUserEntry');
 const dgUtamaLastUpdate = document.getElementById('dgUtamaLastUpdate');
+
 const btnEditDgUtama = document.getElementById('btnEditDgUtama');
 const btnPublishDgUtama = document.getElementById('btnPublishDgUtama');
-// const btnMenuPrintDgUtama = document.getElementById('btnMenuPrintDgUtama');
-// const btnExcelDetailDgUtama = document.getElementById('btnExcelDetailDgUtama');
-// const btnPDFDetailDgUtama = document.getElementById('btnPDFDetailDgUtama');
+const btnChangePIC = document.getElementById('btnChangePIC');
 const btnReloadDgUtama = document.getElementById('btnReloadDgUtama');
 
 const dgUtamaYear = document.getElementById('dgUtamaYear');
 const dgUtamaYear1 = document.getElementById('dgUtamaYear1');
-const modalEditor = bootstrap.Modal.getOrCreateInstance('#modalEditor');
+
+const dgEditorTbody = document.querySelector('table#dgEditor > tbody');
+const formEditor = document.getElementById('formEditor');
+const modalEditor = bootstrap.Modal.getOrCreateInstance('#modalEditor', {
+  keyboard: false
+});
 const modalEditorTahunKPI = document.getElementById('modalEditorTahunKPI');
 const modalEditorDivisionCorpsKPI = document.getElementById('modalEditorDivisionCorpsKPI');
+const modalEditorYear1 = document.getElementById('modalEditorYear1');
+const modalEditorBtnSave = document.getElementById('modalEditorBtnSave');
 const btnAddNewDgEditor = document.getElementById('btnAddNewDgEditor');
 const btnAddChildDgEditor = document.getElementById('btnAddChildDgEditor');
 const btnDeleteDgEditor = document.getElementById('btnDeleteDgEditor');
-const formEditor = document.getElementById('formEditor');
-const modalEditorYear1 = document.getElementById('modalEditorYear1');
-const modalEditorBtnSave = document.getElementById('modalEditorBtnSave');
+
+const dgChangeUserTbody = document.querySelector('table#dgChangeUser > tbody');
+const formChangeUser = document.getElementById('formChangeUser');
+const modalChangeUser = bootstrap.Modal.getOrCreateInstance('#modalChangeUser', {
+  keyboard: false
+});
+const modalChangeUserTahunKPI = document.getElementById('modalChangeUserTahunKPI');
+const modalChangeUserDivisionCorpsKPI = document.getElementById('modalChangeUserDivisionCorpsKPI');
+const modalChangeUserBtnSave = document.getElementById('modalChangeUserBtnSave');
+
 const modalAddFresh = bootstrap.Modal.getOrCreateInstance('#modalAddFresh');
 const modalAddFreshBackdrop = document.getElementById('modalAddFreshBackdrop');
 const modalAddFreshBtnSave = document.getElementById('modalAddFreshBtnSave');
@@ -97,8 +111,10 @@ let yearProgress;
 let divisionCorpsProgress;
 let nameDivisionCorpsProgress;
 let saveStateformEditor = false;
+let saveStateformChangeUser = false;
 let deleteDataKPI = [];
 let indexRowEditor = 0;
+let indexRowChangeUser = 0;
 
 let getResponsePolaritas;
 const getJsonPolaritas = async () => {
@@ -128,13 +144,14 @@ const getJsonPolaritas = async () => {
 
 let funBtnEditDgUtama = async () => {}
 let funBtnPublishDgUtama = async () => {}
-// let funBtnExcelDetailDgUtama = async () => {}
-// let funBtnPDFDetailDgUtama = async () => {}
+let funBtnChangePIC = async () => {}
 const funBtnReloadDgUtama = async () => {
   await funViewKPIYear();
 }
 let funModalEditorBtnSave = async () => {}
 let openModalEditor = async () => {}
+let funModalChangeUserBtnSave = async () => {}
+let openModalChangeUser = async () => {}
 let stateCutOffInput = [];
 let stateTargetInput = [];
 let stateYearKpi = null;
@@ -151,6 +168,7 @@ const closeConfirmComp = async () => {
 const diseventAlert = () => {
   alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalEditor);
   alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeConfirmComp);
+  alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalChangeUser);
 }
 
 const getKpiNow = async () => {
@@ -165,6 +183,33 @@ const getKpiNow = async () => {
       reject('Data tidak ditemukan! Konfirmasi dengan QMS!');
     }
   });
+}
+
+const insertingTdChangeUser = async (data, funInsert, addDataChangeUser) => {
+  const elemTr = document.createElement('tr');
+  const elemTd = `
+    <input type="hidden" name="status_changeuser[${indexRowChangeUser}]" id="status_changeuser_${indexRowChangeUser}">
+    <input type="hidden" name="id_changeuser[${indexRowChangeUser}]" id="id_changeuser_${indexRowChangeUser}">
+    <td class="text-center" style="white-space: nowrap;">${data.name_perspective}</td>
+    <td style="white-space: nowrap;">${data.text_sobject}</td>
+    <td>
+      <span style="padding-left: ${(data.index_kpidivcorp.split('.').length - 2) * 12}px;">(${data.index_kpidivcorp}) ${data.name_kpidivcorp}</span>
+    </td>
+    <td><select class="form-select data_avail_changeuser" name="data_avail_changeuser[${indexRowChangeUser}]" id="data_avail_changeuser_${indexRowChangeUser}" data-placeholder="Masukan departemen..."></select></td>
+    <td><select class="form-select userpic_changeuser" name="userpic_changeuser[${indexRowChangeUser}]" id="userpic_changeuser_${indexRowChangeUser}" data-placeholder="Masukan user..."></select></td>
+  `;
+  elemTr.innerHTML = elemTd;
+  elemTr.addEventListener('click', (e) => {
+    if (e.target.localName !== 'input' && e.target.localName !== 'textarea' && e.target.localName !== 'span' && e.target.localName !== 'label') {
+      elemTr.classList.contains('selected') ? elemTr.classList.remove('selected') : elemTr.classList.add('selected');
+      removeSelectChangeUser(elemTr);
+    }
+  });
+  await funInsert(elemTr);
+  const indexRowNow = indexRowChangeUser;
+  indexRowChangeUser++;
+  await addFunSelectChangeUser(indexRowNow);
+  await addDataChangeUser(elemTr, indexRowNow);
 }
 
 const insertingTdEditor = async (data, funInsert, addDataEditor, indexParent = null, isSupport = false) => {
@@ -252,8 +297,7 @@ const insertTdEditor = async (jsonData) => {
   for (const objectData of jsonData) {
     await insertingTdEditor(objectData,
       async (element, index) => {
-        const tbodyElem = document.querySelector('table#dgEditor > tbody');
-        tbodyElem.append(element);
+        dgEditorTbody.append(element);
       }, async (element, index) => {
         const status_kpi = document.getElementById(`status_kpi_${index}`);
         const id_sobject = document.getElementById(`id_sobject_${index}`);
@@ -397,30 +441,95 @@ const insertTdEditor = async (jsonData) => {
   }
 }
 
+const insertTdChangeUser = async (jsonData) => {
+  for (const objectData of jsonData) {
+    await insertingTdChangeUser(objectData,
+      async (element, index) => {
+        dgChangeUserTbody.append(element);
+      }, async (element, index) => {
+
+        const id_changeuser = document.getElementById('id_changeuser_' + index);
+        id_changeuser.value = objectData.id_kpidivcorp;
+        const status_changeuser = document.getElementById('status_changeuser_' + index);
+        status_changeuser.value = objectData.status_kpi;
+
+        // Set value data availability
+        if (!IsEmpty(objectData.data_avail_id_department)) {
+          const optionDataAvailability = new Option(objectData.data_avail_name_department, objectData.data_avail_id_department, true, true);
+          const dataDataAvailability = {};
+          dataDataAvailability.id = objectData.data_avail_id_department;
+          dataDataAvailability.text = objectData.data_avail_name_department;
+          $('#data_avail_changeuser_' + index).append(optionDataAvailability).trigger('change');
+          $('#data_avail_changeuser_' + index).trigger({
+            type: 'select2:select',
+            params: {
+              data: dataDataAvailability
+            }
+          });
+        }
+
+        // Set value user PIC
+        if (!IsEmpty(objectData.data_avail_id_usersetup)) {
+          const optionUsers = new Option(objectData.data_avail_fullname_users, objectData.data_avail_id_usersetup, true, true);
+          const dataUsers = {};
+          dataUsers.id = objectData.data_avail_id_usersetup;
+          dataUsers.text = objectData.data_avail_fullname_users;
+          $('#userpic_changeuser_' + index).append(optionUsers).trigger('change');
+          $('#userpic_changeuser_' + index).trigger({
+            type: 'select2:select',
+            params: {
+              data: dataUsers
+            }
+          });
+        }
+
+        // if (objectData.status_kpi === 'kpi_divcorp_corps') {
+        //   $('#data_avail_changeuser_' + index)[0].disabled = true;
+        //   $('#userpic_changeuser_' + index)[0].disabled = true;
+        //   id_changeuser.disabled = true;
+        // }
+
+      }
+    )
+  }
+}
+
+const resetDgUtama = () => {
+  btnChangePIC.disabled = true;
+  btnPublishDgUtama.disabled = true;
+  btnReloadDgUtama.disabled = true;
+  btnEditDgUtama.disabled = true;
+  dgUtamaTbody.innerHTML = null;
+  dgUtamaUserEntry.innerText = null;
+  dgUtamaLastUpdate.innerText = null;
+  diseventAlert();
+}
+
 const funViewKPIYear = async () => {
   dgUtamaYear.innerText = `LOADING....`;
   
   await getKpiNow()
   .then(jsonData => {
 
+    resetDgUtama();
+
     if (jsonData.response === 'error') {
       alertComponent.sendAnAlertOnCatch(jsonData.alert);
     } else {
       dgUtamaYear.innerText = `KPI Divisi Korporat - ${nameDivisionCorpsProgress} (${yearProgress})`;
       dgUtamaYear1.innerText = yearProgress - 1;
+
       btnEditDgUtama.removeEventListener('click', funBtnEditDgUtama);
       btnPublishDgUtama.removeEventListener('click', funBtnPublishDgUtama);
-      // btnExcelDetailDgUtama.removeEventListener('click', funBtnExcelDetailDgUtama);
-      // btnPDFDetailDgUtama.removeEventListener('click', funBtnPDFDetailDgUtama);
       btnReloadDgUtama.removeEventListener('click', funBtnReloadDgUtama);
+      btnChangePIC.removeEventListener('click', funBtnChangePIC);
+
       btnEditDgUtama.disabled = false;
       btnPublishDgUtama.disabled = false;
-      // btnMenuPrintDgUtama.disabled = false;
-      // btnExcelDetailDgUtama.disabled = false;
-      // btnPDFDetailDgUtama.disabled = false;
       btnReloadDgUtama.disabled = false;
+
       dgUtamaTbody.innerHTML = null;
-      
+
       let lateDate;
       let lateUser;
       for (const objectData of jsonData) {
@@ -490,7 +599,6 @@ const funViewKPIYear = async () => {
         }
         funModalEditorBtnSave = async () => {
           modalEditorBtnSave.disabled = true;
-          // alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalEditor);
           diseventAlert();
           if (saveStateformEditor === false) {
             saveStateformEditor = true;
@@ -513,17 +621,9 @@ const funViewKPIYear = async () => {
         modalEditorBtnSave.addEventListener('click', funModalEditorBtnSave);
         modalEditor.show();
       }
-      btnEditDgUtama.addEventListener('click', funBtnEditDgUtama);
-  
-      // funBtnExcelDetailDgUtama = async (e) => {}
-      // btnExcelDetailDgUtama.addEventListener('click', funBtnExcelDetailDgUtama);
-  
-      // funBtnPDFDetailDgUtama = async (e) => {}
-      // btnPDFDetailDgUtama.addEventListener('click', funBtnPDFDetailDgUtama);
   
       funBtnPublishDgUtama = async (e) => {
         confirmComponent.setupconfirm('Terbit KPI', 'bg-primary', 'text-white', 'Anda yakin ingin terbitkan KPI ini sekarang?');
-        // alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeConfirmComp);
         diseventAlert();
         if (!IsEmpty(yearProgress) && !IsEmpty(divisionCorpsProgress)) {
           confirmComponent.btnConfirm.addEventListener('click', async () => {
@@ -541,12 +641,48 @@ const funViewKPIYear = async () => {
           confirmComponent.confirmModal.show();
         }
       }
+
       btnPublishDgUtama.addEventListener('click', funBtnPublishDgUtama);
       btnReloadDgUtama.addEventListener('click', funBtnReloadDgUtama);
+      btnEditDgUtama.addEventListener('click', funBtnEditDgUtama);
+
+      if (jsonData.filter((element) => element.id_kpidivcorp).length > 0) {
+        btnChangePIC.disabled = false;
+        funBtnChangePIC = async (e) => {
+          await resetModalChangeUser();
+          openModalChangeUser = async () => {
+            await defaultOpenModalChangeUser();
+            await insertTdChangeUser(jsonData);
+          }
+          funModalChangeUserBtnSave = async () => {
+            modalChangeUserBtnSave.disabled = true;
+            diseventAlert();
+            if (saveStateformChangeUser === false) {
+              saveStateformChangeUser = true;
+              try {
+                const sendData = new FormData(formChangeUser);
+                const getResponse = await sendViaFetchForm('route.php?act=changePICDepartment', sendData);
+                alertComponent.sendAnAlertOnTry(getResponse, closeModalChangeUser);
+              } catch (error) {
+                alertComponent.sendAnAlertOnCatch(error);
+              } finally {
+                modalChangeUserBtnSave.disabled = false;
+                saveStateformChangeUser = false;
+              }
+            }
+          }
+          modalChangeUser._element.addEventListener('shown.bs.modal', openModalChangeUser);
+          modalChangeUserBtnSave.addEventListener('click', funModalChangeUserBtnSave);
+          modalChangeUser.show();
+        }
+        btnChangePIC.addEventListener('click', funBtnChangePIC);
+      }
+
     }
 
   })
   .catch(error => {
+    resetDgUtama();
     const errorMsg = error ?? 'Terjadi kesalahan, Coba beberapa saat lagi!';
     dgUtamaYear.innerText = errorMsg;
     alertComponent.sendAnAlertOnCatch(errorMsg);
@@ -555,16 +691,23 @@ const funViewKPIYear = async () => {
 }
 
 const resetModalEditor = async () => {
-  const tbody = document.querySelector('table#dgEditor tbody');
   modalEditorTahunKPI.innerText = null;
   modalEditorDivisionCorpsKPI.innerText = null;
   modalEditorYear1.innerText = null;
   indexRowEditor = 0;
   deleteDataKPI = [];
-  tbody.innerHTML = null;
+  dgEditorTbody.innerHTML = null;
   modalEditorBtnSave.removeEventListener('click', funModalEditorBtnSave);
   modalEditor._element.removeEventListener('shown.bs.modal', openModalEditor);
-  // alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalEditor);
+}
+
+const resetModalChangeUser = async () => {
+  modalChangeUserTahunKPI.innerText = null;
+  modalChangeUserDivisionCorpsKPI.innerText = null;
+  indexRowChangeUser = 0;
+  dgChangeUserTbody.innerHTML = null;
+  modalChangeUserBtnSave.removeEventListener('click', funModalChangeUserBtnSave);
+  modalChangeUser._element.removeEventListener('shown.bs.modal', openModalChangeUser);
 }
 
 const defaultOpenModalEditor = async () => {
@@ -573,12 +716,25 @@ const defaultOpenModalEditor = async () => {
   modalEditorYear1.innerText = yearProgress - 1;
 }
 
+const defaultOpenModalChangeUser = async () => {
+  modalChangeUserTahunKPI.innerText = yearProgress;
+  modalChangeUserDivisionCorpsKPI.innerText = nameDivisionCorpsProgress;
+}
+
 const closeModalEditor = async () => {
   modalEditor.hide();
   await funViewKPIYear();
 }
 
+const closeModalChangeUser = async () => {
+  modalChangeUser.hide();
+  await funViewKPIYear();
+}
+
 const addFunSelectEditor = async (index) => {
+  const clearDataAvail = (e) => {
+    $(`#userpic_kpidivcorp_${index}`).val(null).trigger('change');
+  }
   $(`#satuan_kpidivcorp_${index}`).select2({
     theme: "bootstrap-5",
     width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
@@ -664,7 +820,7 @@ const addFunSelectEditor = async (index) => {
       },
       cache: true
     },
-  });
+  }).on('change', clearDataAvail);
 
   $(`#userpic_kpidivcorp_${index}`).select2({
     theme: "bootstrap-5",
@@ -755,6 +911,69 @@ const addFunSelectEditor = async (index) => {
   });
 }
 
+const addFunSelectChangeUser = async (index) => {
+  const clearDataAvail = (e) => {
+    $(`#userpic_changeuser_${index}`).val(null).trigger('change');
+  }
+  $(`#data_avail_changeuser_${index}`).select2({
+    theme: "bootstrap-5",
+    width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+    placeholder: $( this ).data( 'placeholder' ),
+    dropdownParent: $('#modalChangeUser'),
+    allowClear: true,
+    ajax: {
+      url: "../master_department/route.php?act=jsonDepartment",
+      dataType: 'json',
+      method: 'POST',
+      delay: 250,
+      data: function (params) {
+        return {
+          q: params.term,
+          page: params.page || 1
+        };
+      },
+      processResults: function (data) {
+        return {
+          results: data.items,
+          pagination: {
+            more: data.pagination.more
+          }
+        };
+      },
+      cache: true
+    },
+  }).on('change', clearDataAvail);
+  $(`#userpic_changeuser_${index}`).select2({
+    theme: "bootstrap-5",
+    width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+    placeholder: $( this ).data( 'placeholder' ),
+    dropdownParent: $('#modalChangeUser'),
+    allowClear: true,
+    ajax: {
+      url: "../users_setup/route.php?act=searchDeptCompCorps",
+      dataType: 'json',
+      method: 'POST',
+      delay: 250,
+      data: function (params) {
+        return {
+          q: params.term,
+          page: params.page || 1,
+          id_department: $(`#data_avail_changeuser_${index}`).val()
+        };
+      },
+      processResults: function (data) {
+        return {
+          results: data.results,
+          pagination: {
+            more: data.pagination.more
+          }
+        };
+      },
+      cache: true
+    },
+  })
+}
+
 const addIndexingKPI = async (elemTr) => {
   const indexRow = parseInt(elemTr.dataset.indexRow);
   const jsonData = JSON.parse(elemTr.dataset.rowJson);
@@ -773,6 +992,7 @@ const addIndexingKPI = async (elemTr) => {
   const elemKPI = document.getElementById('index_kpidivcorp_' + indexRow);
   elemKPI.value = indexParent + '.' + indexKPI;
 }
+
 const removeSelectEditor = (elemTarget) => {
   const dgEditorTr = document.querySelectorAll('table#dgEditor > tbody tr');
   dgEditorTr.forEach(element => {
@@ -789,26 +1009,17 @@ const loadDataUtama = async () => {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // const sendDataPolaritas = new URLSearchParams();
-  // getResponsePolaritas = await sendViaFetchForm('../../json/polaritas.json', sendDataPolaritas);
   getResponsePolaritas = await getJsonPolaritas();
 
   btnEditDgUtama.disabled = true;
   btnPublishDgUtama.disabled = true;
-  // btnMenuPrintDgUtama.disabled = true;
-  // btnExcelDetailDgUtama.disabled = true;
-  // btnPDFDetailDgUtama.disabled = true;
+  btnChangePIC.disabled = true;
   btnReloadDgUtama.disabled = true;
   dgUtamaYearInput.value = null;
 
   dgUtamaYearBtn.addEventListener('click', async (e) => {
     await loadDataUtama();
   });
-  // dgUtamaYearInput.addEventListener('keyup', async (e) => {
-  //   if (e.type === 'keyup' && e.key === 'Enter') {
-  //     await loadDataUtama();
-  //   }
-  // });
   dgUtamaYearInput.addEventListener('keyup', async (e) => {
     if (e.type === 'keyup' && e.key === 'Enter') {
       await loadDataUtama();
@@ -977,7 +1188,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await insertingTdEditor(jsonData,
       async (element, index) => {
-        const tbodyElem = document.querySelector('table#dgEditor > tbody');
         const trElem = document.querySelectorAll('table#dgEditor > tbody tr');
         const elementSame = [];
         const elementSmall = [];
@@ -1010,10 +1220,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           } else if (elementSmall.length > 0) {
             elementSmall[elementSmall.length - 1].before(element);
           } else {
-            tbodyElem.append(element);
+            dgEditorTbody.append(element);
           }
         } else {
-          tbodyElem.append(element);
+          dgEditorTbody.append(element);
         }
       }, async (element, index) => {
         const cascade_tri = document.getElementById('cascade_tri_' + index);

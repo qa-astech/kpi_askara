@@ -49,10 +49,10 @@
         <div class="alert border">
           <h5 class="fw-bold mb-3 text-decoration-underline">Indikator Pencapaian</h5>
           <div>
-            <p class="fw-bold mb-1"><span class="circle bg-info"></span> ISTIMEWA</p>
-            <p class="fw-bold mb-1"><span class="circle bg-success"></span> BAGUS</p>
-            <p class="fw-bold mb-1"><span class="circle bg-warning"></span> CUKUP</p>
-            <p class="fw-bold mb-1"><span class="circle bg-danger"></span> KURANG</p>
+            <p class="fw-bold mb-1"><span class="circle bg-info"></span> ISTIMEWA (101% - 120%)</p>
+            <p class="fw-bold mb-1"><span class="circle bg-success"></span> BAGUS (91% - 100%)</p>
+            <p class="fw-bold mb-1"><span class="circle bg-warning"></span> CUKUP (80% - 90%)</p>
+            <p class="fw-bold mb-1"><span class="circle bg-danger"></span> KURANG (< 80%)</p>
           </div>
         </div>
         <div class="border rounded p-2">

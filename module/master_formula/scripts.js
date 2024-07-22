@@ -129,7 +129,9 @@ const accessModule = {
 const dgUtama = new DgUtama();
 const alertComponent = new AlertElemBS5('alertComponent1');
 const confirmComponent = new ConfirmElemBS5('confirmComponent1');
-const modalUtama = bootstrap.Modal.getOrCreateInstance('#modalUtama');
+const modalUtama = bootstrap.Modal.getOrCreateInstance('#modalUtama', {
+  keyboard: false
+});
 const modalUtamaForm = document.getElementById('modalUtamaForm');
 const modalUtamaTitle = document.getElementById('modalUtamaTitle');
 const modalUtamaBtnSave = document.getElementById('modalUtamaBtnSave');
@@ -144,7 +146,7 @@ const resetModalUtama = async () => {
   modalUtama._element.removeEventListener('shown.bs.modal', addModalUtama);
   modalUtama._element.removeEventListener('shown.bs.modal', editModalUtama);
   modalUtamaBtnSave.removeEventListener('click', saveModalUtama);
-  alertComponent.alertElem.removeEventListener('shown.bs.modal', closeModalUtama);
+  alertComponent.alertElem.removeEventListener('hidden.bs.modal', closeModalUtama);
   resetInputExceptChoice(modalUtamaForm);
 }
 const getDataUtama = async () => {
@@ -269,19 +271,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (checkBooleanFromServer(accessModule.access_print)) {
-    // dgUtama.btnExcelDetail.addEventListener('click', async () => {});
     dgUtama.btnPDFDetail.addEventListener('click', async () => {});
   } else {
     dgUtama.btnMenuPrint.disabled = true;
-    // dgUtama.btnExcelDetail.disabled = true;
     dgUtama.btnPDFDetail.disabled = true;
   }
-
-  // $('#button_formula').on('click', function (event) {
-  //   const result_formula = document.getElementById('result_formula');
-  //   const contoh_formula = document.getElementById('contoh_formula');
-  //   console.log(formulajs.SUM(12, 13, 14));
-  // });
 
   dgUtama.filterTh.forEach((element, index) => {
     for (const eventType of ['keyup', 'change']) {

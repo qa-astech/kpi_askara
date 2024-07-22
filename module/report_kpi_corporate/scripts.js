@@ -106,7 +106,6 @@ const funViewKPIYear = async (year) => {
           const currentData = yearData.filter((value) => value.compkpi_id === bisnisUnit.id_company);
           const targetBisnis = currentData && currentData.length > 0 ? currentData[0].target_bisnis : null;
           const realisasi = currentData && currentData.length > 0 ? currentData[0].realisasi : null;
-          console.log(currentData);
           elemTdTahunan += `
             <td class="align-middle text-end created-js">${targetBisnis ? number_format_big(targetBisnis, 2, '.', ',') : ''}</td>
             <td class="align-middle text-end created-js">${realisasi ? number_format_big(realisasi, 2, '.', ',') : ''}</td>

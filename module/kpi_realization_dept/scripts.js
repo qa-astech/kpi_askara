@@ -8,21 +8,14 @@ import BigNumber from '../../../third-party/bignumberjs/bignumber.mjs';
 BigNumber.config({
   DECIMAL_PLACES: 5
 });
-// const test1 = BigNumber('0.054');
-// const test2 = BigNumber('5000000000000000000.00');
-// console.log(test1.isLessThan(test2), test2.isLessThan(test1));
 
 const alertComponent = new AlertElemBS5('alertComponent1');
-const confirmComponent = new ConfirmElemBS5('confirmComponent1');
 const dgUtamaYearInput = document.getElementById('dgUtamaYearInput');
 const dgUtamaUserEntry = document.getElementById('dgUtamaUserEntry');
 const dgUtamaLastUpdate = document.getElementById('dgUtamaLastUpdate');
 const btnSelectDgUtama = document.getElementById('btnSelectDgUtama');
 const btnResetDgUtama = document.getElementById('btnResetDgUtama');
-const btnSaveDgUtama = document.getElementById('btnSaveDgUtama');
-const dgUtama = document.getElementById('dgUtama');
 const beforeBulanHeader = document.getElementById('beforeBulanHeader');
-const trHeaderUtama = document.getElementById('trHeaderUtama');
 const monthTarget = document.getElementById('monthTarget');
 const selectKPIModal = document.getElementById('selectKPIModal');
 const selectKPIModalForm = document.getElementById('selectKPIModalForm');
@@ -127,11 +120,8 @@ const getJsonMonthData = async () => {
 let yearKPI;
 let monthFromKPI;
 let monthToKPI;
-let typeKPI;
-let companyKPI;
-let departmentKPI;
-let saveStateSelectKPI = false;
 let saveProgramKPI = false;
+let saveStateSelectKPI = false;
 let stateTargetInput = [];
 
 const resetProgram = (e) => {
@@ -141,7 +131,7 @@ const resetProgram = (e) => {
   dgUtamaYearInput.disabled = false;
   $('#dgUtamaDateInput1')[0].disabled = false;
   $('#dgUtamaDateInput2')[0].disabled = false;
-  alertComponent.alertElem.removeEventListener('shown.bs.modal', resetProgram);
+  alertComponent.alertElem.removeEventListener('hidden.bs.modal', resetProgram);
 }
 
 const implanHeader = async () => {
@@ -168,9 +158,9 @@ const implanHeader = async () => {
     headerItemBulanElem += `
       <th class="align-middle text-center tdMonth" data-month="${element.number}" style="border-left: 1px solid var(--bs-danger)">Target</th>
       <th class="align-middle text-center tdMonth" data-month="${element.number}">Realisasi</th>
-      <th class="align-middle text-center tdMonth" data-month="${element.number}">Remarks</th>
+      <th class="align-middle text-center tdMonth" data-month="${element.number}">Tindakan Perbaikan <span class="text-danger">#</span></th>
       <th class="align-middle text-center tdMonth" data-month="${element.number}">Indikator Pencapaian</th>
-      <th class="align-middle text-center tdMonth" data-month="${element.number}">Bukti File</th>
+      <th class="align-middle text-center tdMonth" data-month="${element.number}">Bukti File <span class="text-danger">#</span></th>
       <th class="align-middle text-center tdMonth" data-month="${element.number}">Diinput Oleh</th>
       <th class="align-middle text-center tdMonth" data-month="${element.number}" style="border-right: 1px solid var(--bs-danger)">Waktu Penginputan</th>
     `;
@@ -179,8 +169,6 @@ const implanHeader = async () => {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // const sendDataMonthData = new URLSearchParams();
-  // getMonthData = await sendViaFetchForm('../../json/month.json', sendDataMonthData);
   getMonthData = await getJsonMonthData();
 
   $('#dgUtamaDateInput1').select2({
@@ -302,18 +290,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       alertComponent.sendAnAlertOnCatch('Silahkan pilih terlebih dahulu KPI yang ingin diisi!');
       return false;
     } else {
-  //     const tdMonth = document.querySelectorAll('.tdMonth');
-  //     for (const element of tdMonth) {
-  //       if(!element.classList.contains('d-none')) element.classList.add('d-none');
-  //     }
-  //     for (const element of tdMonth) {
-  //       if (element.dataset.month >= monthFromKPI && element.dataset.month <= monthToKPI) {
-  //         element.classList.remove('d-none');
-  //       }
-  //     }
 
       await implanHeader();
-      
       const btnForSaving = document.createElement('button');
       btnForSaving.classList.add('btn', 'rounded', 'btn-sm', 'btn-save');
       const spanForSaving = document.createElement('span');
@@ -353,9 +331,9 @@ document.addEventListener("DOMContentLoaded", async () => {
               const [targetElem] = filteringInput.filter((element) => element.name.includes('target_kpi'));
               const [realisasiElem] = filteringInput.filter((element) => element.name.includes('realisasi_kpi'));
               const [polaritasElem] = filteringInput.filter((element) => element.name.includes('polaritas_kpi'));
-              const realisasiValue = realisasiElem ? new BigNumber(realisasiElem.value) : null;
-              const targetValue = targetElem ? new BigNumber(targetElem.value) : null;
-              sendData.append(`isRealisasiLessThanTarget[${uniqVal}]`, !IsEmpty(realisasiElem.value, true, true) ? (polaritasElem.value === 'max' ? realisasiValue.isLessThan(targetValue) : realisasiValue.isMoreThan(targetValue)) : null);
+              const realisasiValue = realisasiElem ? new BigNumber(realisasiElem.value.trim().replace(/,/g, "")) : null;
+              const targetValue = targetElem ? new BigNumber(targetElem.value.trim().replace(/,/g, "")) : null;
+              sendData.append(`isRealisasiLessThanTarget[${uniqVal}]`, !IsEmpty(realisasiElem.value, true, true) ? (polaritasElem.value === 'max' ? realisasiValue.isLessThan(targetValue) : realisasiValue.isGreaterThan(targetValue)) : null);
             });
 
             const getData = await sendViaFetchForm('route.php?act=sendKpiRealization', sendData);
@@ -415,6 +393,32 @@ document.addEventListener("DOMContentLoaded", async () => {
           const filteringArr = dataKpi.target_kpi.filter((objValue) => parseInt(objValue.month) === parseInt(element.number))[0];
           if (filteringArr) {
             if (!checkBooleanFromServer(filteringArr.lockStatus)) {
+              const targetVal = new BigNumber(filteringArr.target);
+              const realisasiVal = new BigNumber(filteringArr.realisasi);
+              let pencapaian = null;
+              let indikator = null;
+              if (!IsEmpty(filteringArr.realisasi, true)) {
+                if (targetVal.isEqualTo(0)) {
+                  pencapaian = 100;
+                } else {
+                  if (dataKpi.polaritas_kpi_realization === 'min') {
+                    pencapaian = 100 + (100 - realisasiVal.dividedBy(targetVal).multipliedBy(100));
+                  } else {
+                    pencapaian = realisasiVal.dividedBy(targetVal).multipliedBy(100).toNumber();
+                  }
+                  
+                }
+                if (pencapaian > 100) {
+                  indikator = `<span class="circle bg-info"></span> ${pencapaian}%`;
+                } else if (pencapaian > 90 && pencapaian <= 100) {
+                  indikator = `<span class="circle bg-success"></span> ${pencapaian}%`;
+                } else if (pencapaian > 79 && pencapaian <= 90) {
+                  indikator = `<span class="circle bg-warning"></span> ${pencapaian}%`;
+                } else {
+                  indikator = `<span class="circle bg-danger"></span> ${pencapaian}%`;
+                }
+              }
+
               trElem.innerHTML += `
                 <input type="hidden" name="polaritas_kpi[${filteringArr.idTargetMonth}]" value="${dataKpi.polaritas_kpi_realization}">
                 <input type="hidden" name="type_kpi[${filteringArr.idTargetMonth}]" value="${filteringArr.typeTarget}">
@@ -436,11 +440,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     class="form-control remarks_kpi"
                     name="remarks_kpi[${filteringArr.idTargetMonth}]"
                     style="width: 240px;"
-                    placeholder="Remarks..."
+                    placeholder="Apa tindakan perbaikanmu?"
                     data-id-month="${filteringArr.idTargetMonth}"
                   >
                 </td>
-                <td class="bg-danger-subtle" data-month="${element.number}"></td>
+                <td class="bg-danger-subtle text-center fs-4 fw-bold" data-month="${element.number}">${indikator ?? ''}</td>
                 <td class="bg-danger-subtle" data-month="${element.number}">
                   <div class="d-flex flex-column">
                     ${filteringArr.fileRealisasi ? `<button type="button" class="btn rounded btn-sm btn-zip" data-month="${element.number}"><span class="ps-2">Unduh File Sebelumnya</span></button>` : ''}
@@ -454,8 +458,8 @@ document.addEventListener("DOMContentLoaded", async () => {
               trElem.innerHTML += `
                 <td class="bg-danger-subtle text-end" data-month="${element.number}" style="border-left: 1px solid var(--bs-danger)">${number_format_big(filteringArr.target, 2, '.', ',')}</td>
                 <td class="bg-danger-subtle" data-month="${element.number}">${filteringArr.realisasi ? number_format_big(filteringArr.realisasi, 2, '.', ',') : ''}</td>
-                <td class="bg-danger-subtle" data-month="${element.number}"></td>
-                <td class="bg-danger-subtle" data-month="${element.number}"></td>
+                <td class="bg-danger-subtle" data-month="${element.number}">${filteringArr.remarks ?? ''}</td>
+                <td class="bg-danger-subtle text-center fs-4 fw-bold" data-month="${element.number}">${indikator ?? ''}</td>
                 <td class="bg-danger-subtle" data-month="${element.number}">
                   ${filteringArr.fileRealisasi ? `<button type="button" class="btn rounded btn-sm btn-zip" data-month="${element.number}"><span class="ps-2">Unduh File</span></button>` : ''}
                 </td>
@@ -503,6 +507,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const target_input = document.querySelectorAll('.realisasi_kpi');
       target_input.forEach(elementTarget => {
         stateTargetInput[elementTarget.dataset.idMonth] = null;
+
         elementTarget.addEventListener('focusout', (e) => {
           const input = e.target;
           const value = input.value.trim().replace(/,/g, "");
@@ -517,16 +522,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             input.value = realValue;
           }
         });
+
         elementTarget.addEventListener('focusin', (e) => {
           const input = e.target;
           const value = input.value.trim().replace(/,/g, "");
           input.value = value;
         });
-
-        // const filteringArr = dataKpi.target_kpi.filter((objValue) => objValue.month === element.number)[0];
-        // if (filteringArr) {
-        //   if (filteringArr.lockStatus === 'f') {}
-        // }
 
         let valueTarget = null;
         for (const dataKpi of getData) {
@@ -537,8 +538,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         elementTarget.value = valueTarget ? number_format_big(valueTarget, 2, '.', ',') : '';
-        // value="${filteringArr.realisasi ? number_format_big(filteringArr.realisasi, 2, '.', ',') : null}"
+      });
 
+      const remarks_input = document.querySelectorAll('.remarks_kpi');
+      remarks_input.forEach(elementTarget => {
+        let valueTarget = null;
+        for (const dataKpi of getData) {
+          const getTarget = dataKpi.target_kpi.filter((objValue) => objValue.idTargetMonth === elementTarget.dataset.idMonth)[0];
+          if (getTarget) {
+            valueTarget = getTarget.remarks;
+          }
+        }
+        elementTarget.value = valueTarget ?? null;
       });
 
       saveProgramKPI = false;

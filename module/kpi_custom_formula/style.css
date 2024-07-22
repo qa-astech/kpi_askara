@@ -1,0 +1,15 @@
+.noteRumus{
+  max-width: 380px;
+}
+.noteRumus ul{
+  padding-left: 1rem !important;
+}
+label.card {
+  cursor: pointer;
+}
+.card.selected {
+  border: var(--bs-card-border-width) solid var(--bs-primary);
+}
+.card.selected .card-header {
+  border-bottom: var(--bs-card-border-width) solid var(--bs-primary);
+}
