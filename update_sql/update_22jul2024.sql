@@ -1,3 +1,9 @@
+ALTER TABLE kpi_department_realization
+ADD COLUMN IF NOT EXISTS remarks text;
+
+ALTER TABLE kpi_divcorp_realization
+ADD COLUMN IF NOT EXISTS remarks text;
+
 DROP VIEW IF EXISTS kpi_bisnis_unit;
 DROP VIEW IF EXISTS kpi_department;
 DROP VIEW IF EXISTS kpi_divcorp;
@@ -305,7 +311,7 @@ UNION ALL
      LEFT JOIN satuan_master k ON k.id_satuan::text = a.id_satuan::text
      LEFT JOIN formula_master l ON l.id_formula::text = a.id_formula::text;
 
-CREATE OR REPLACE VIEW public.kpi_realization_dept
+CREATE OR REPLACE VIEW kpi_realization_dept
  AS
  SELECT DISTINCT 'kpi_divcorp_corps'::character varying AS status_kpi,
     a.id_kpidivcorp AS id_realization,
@@ -463,7 +469,7 @@ UNION ALL
      JOIN department_master m ON m.id_department::text = a.id_department::text
   WHERE a.terbit_kpidept IS TRUE;
 
-CREATE OR REPLACE VIEW public.mini_kpi_bisnis_unit
+CREATE OR REPLACE VIEW mini_kpi_bisnis_unit
  AS
  SELECT DISTINCT tbl.id_kpibunit,
     tbl.id_kpicorp,
@@ -488,7 +494,7 @@ CREATE OR REPLACE VIEW public.mini_kpi_bisnis_unit
             a.id_company AS compkpi_id
            FROM kpi_bisnis_unit_support a) tbl;
 
-CREATE OR REPLACE VIEW public.mini_kpi_department
+CREATE OR REPLACE VIEW mini_kpi_department
  AS
  SELECT tbl.id_kpidept,
     tbl.id_kpibunit,
@@ -516,7 +522,7 @@ CREATE OR REPLACE VIEW public.mini_kpi_department
             a.id_department AS deptkpi_id
            FROM kpi_department_support a) tbl;
 
-CREATE OR REPLACE VIEW public.mini_kpi_divcorp
+CREATE OR REPLACE VIEW mini_kpi_divcorp
  AS
  SELECT a.id_kpidivcorp,
     b.id_kpicorp,
@@ -535,7 +541,7 @@ UNION ALL
     a.id_department AS deptkpi_id
    FROM kpi_divcorp_support a;
 
-CREATE OR REPLACE VIEW public.target_distinct_kpibunit
+CREATE OR REPLACE VIEW target_distinct_kpibunit
  AS
  SELECT DISTINCT a.id_kpibunit,
     c.id_kpidept,
@@ -555,7 +561,7 @@ CREATE OR REPLACE VIEW public.target_distinct_kpibunit
      LEFT JOIN kpi_department_target d ON d.id_kpidept::text = c.id_kpidept::text
      LEFT JOIN kpi_department_realization e ON e.id_kpidept_target::text = d.id_kpidept_target::text;
 
-CREATE OR REPLACE VIEW public.target_distinct_kpicorps_dept
+CREATE OR REPLACE VIEW target_distinct_kpicorps_dept
  AS
  SELECT DISTINCT a.id_kpicorp,
     b.id_kpibunit,
@@ -583,7 +589,7 @@ CREATE OR REPLACE VIEW public.target_distinct_kpicorps_dept
      LEFT JOIN company_master f ON f.id_company::text = b.id_company::text
      LEFT JOIN department_master g ON g.id_department::text = c.id_department::text;
 
-CREATE OR REPLACE VIEW public.target_distinct_kpicorps_divcorp
+CREATE OR REPLACE VIEW target_distinct_kpicorps_divcorp
  AS
  SELECT DISTINCT a.id_kpicorp,
     c.id_kpidivcorp,
@@ -602,7 +608,7 @@ CREATE OR REPLACE VIEW public.target_distinct_kpicorps_divcorp
      LEFT JOIN kpi_divcorp_realization e ON e.id_kpidivcorp_target::text = d.id_kpidivcorp_target::text
      LEFT JOIN department_master g ON g.id_department::text = c.id_department::text;
 
-CREATE OR REPLACE VIEW public.target_distinct_kpidept
+CREATE OR REPLACE VIEW target_distinct_kpidept
  AS
  SELECT DISTINCT c.id_kpidept,
     d.id_kpidept_target,
@@ -617,7 +623,7 @@ CREATE OR REPLACE VIEW public.target_distinct_kpidept
      LEFT JOIN kpi_department_target d ON d.id_kpidept::text = c.id_kpidept::text
      LEFT JOIN kpi_department_realization e ON e.id_kpidept_target::text = d.id_kpidept_target::text;
 
-CREATE OR REPLACE VIEW public.target_distinct_kpidivcorp
+CREATE OR REPLACE VIEW target_distinct_kpidivcorp
  AS
  SELECT DISTINCT a.id_kpicorp,
     c.id_kpidivcorp,
